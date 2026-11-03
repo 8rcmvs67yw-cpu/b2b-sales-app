@@ -1,0 +1,4115 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOTTE MART B2B | Báo cáo doanh số 2026</title>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Chart.js & SheetJS (XLSX) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --moss-green: #344E41;
+      --moss-green-light: #EBF0EC;
+      --sage-green: #8FA596;
+      --sage-green-light: #B8C7BD;
+      --metallic-gold: #C6A75E;
+      --metallic-gold-light: #F9F5EB;
+      --text-main: #2F2F2F;
+      --text-sub: #64748B;
+      --border-color: #E2E8F0;
+      --lotte-red: #E60012;
+      --positive: #15803D;
+      --negative: #DC2626;
+      --radius-card: 20px;
+      --radius-sm: 10px;
+      --shadow-soft: 0 4px 20px -2px rgba(47, 47, 47, 0.04), 0 2px 6px -1px rgba(47, 47, 47, 0.02);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 240px;
+      background-color: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 4px 12px 24px 12px;
+    }
+
+    .brand-logo {
+      height: 38px;
+      width: auto;
+      max-width: 140px; /* Đảm bảo logo ngang không bị tràn */
+      object-fit: contain;
+      flex-shrink: 0;
+      border-radius: 4px; /* Bo góc nhẹ nếu logo có nền */
+    }
+
+    .brand-text .brand-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--lotte-red);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .brand-text .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      color: var(--text-sub);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .nav-item:hover {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+    }
+
+    .nav-item.active {
+      background-color: var(--moss-green-light);
+      color: var(--moss-green);
+      font-weight: 600;
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 16px;
+    }
+
+    /* MAIN CONTENT (FULL WIDTH - ĐÃ XÓA SIDEBAR) */
+    .main-content {
+      margin-left: 0;
+      flex: 1;
+      padding: 28px 36px 48px 36px;
+      max-width: 100vw;
+      width: 100%;
+    }
+
+    /* TOP HEADER */
+    .top-bar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .page-title h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.4px;
+    }
+
+    .page-title p {
+      font-size: 13.5px;
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .date-range-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text-main);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .date-range-box input[type="date"] {
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--text-main);
+      font-weight: 500;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.18s ease;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background-color: var(--moss-green);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.92;
+    }
+
+    .btn-outline {
+      background-color: var(--card-bg);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--bg-main);
+    }
+
+    .btn-gold {
+      background-color: var(--metallic-gold-light);
+      border-color: var(--metallic-gold);
+      color: #785E24;
+    }
+
+    /* DATA SOURCE STATUS BANNER */
+    .data-status-bar {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 13px;
+    }
+
+    .status-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-sub);
+    }
+
+    .status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--moss-green);
+    }
+
+    .status-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* FILTER ROW */
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .filter-pill {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .filter-pill label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .filter-pill select,
+    .filter-pill input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 13px;
+      color: var(--text-sub);
+      width: 100%;
+      text-align: right;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .filter-pill input {
+      text-align: left;
+    }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .kpi-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-soft);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      min-height: 148px;
+    }
+
+    .kpi-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .kpi-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .kpi-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background-color: var(--moss-green-light);
+      color: var(--moss-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .kpi-icon.gold {
+      background-color: var(--metallic-gold-light);
+      color: var(--metallic-gold);
+    }
+
+    .kpi-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .kpi-value {
+      font-size: 27px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.6px;
+      margin: 4px 0 10px 0;
+      line-height: 1.15;
+    }
+
+    .kpi-value .currency {
+      font-size: 18px;
+      font-weight: 600;
+      text-decoration: underline;
+      margin-left: 3px;
+    }
+
+    .kpi-progress-wrap {
+      width: 100%;
+      height: 8px;
+      background-color: var(--border-color);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+
+    .kpi-progress-bar {
+      height: 100%;
+      background-color: var(--moss-green);
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    .kpi-footer {
+      font-size: 12.5px;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+/* DANH SÁCH CHỈ SỐ CON TRONG THẺ KPI (APPLE STYLE) */
+    .kpi-stats-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: auto; /* Đẩy xuống đáy thẻ */
+      padding-top: 12px;
+      border-top: 1px dashed var(--border-color);
+      font-size: 12.5px;
+    }
+    .kpi-stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .kpi-stat-label {
+      color: var(--text-sub);
+    }
+    .kpi-stat-val {
+      font-weight: 600;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-trend {
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .badge-trend.up {
+      color: var(--positive);
+    }
+
+    .badge-trend.down {
+      color: var(--negative);
+    }
+
+    .badge-trend.neutral {
+      color: var(--text-sub);
+    }
+
+    /* CHARTS SECTION */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .card-panel {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .panel-subtitle {
+      font-size: 12.5px;
+      color: var(--text-sub);
+      margin-top: 3px;
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 3px;
+    }
+
+    .segmented-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 12px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-sub);
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .segmented-btn.active {
+      background-color: var(--moss-green);
+      color: #FFFFFF;
+    }
+
+    .chart-container {
+      position: relative;
+      height: 290px;
+      width: 100%;
+    }
+
+    /* HORIZONTAL BAR LIST (CATEGORY STRUCTURE) */
+    .cat-bars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-top: 8px;
+      max-height: 290px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .cat-bar-row {
+      display: grid;
+      grid-template-columns: 125px 1fr 78px 52px;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+    }
+
+    .cat-name {
+      font-weight: 500;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cat-track {
+      width: 100%;
+      height: 16px;
+      background-color: #F1F5F9;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .cat-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.35s ease;
+    }
+
+    .cat-val {
+      text-align: right;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .cat-share {
+      text-align: right;
+      color: var(--text-sub);
+      font-size: 12.5px;
+    }
+
+   /* BOTTOM 3 TABLES GRID */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    /* DIVISION & CATEGORY DETAIL TABLE (APPLE STYLE) */
+    .dept-table-section {
+      margin-top: 22px;
+      margin-bottom: 22px;
+    }
+
+    .dept-filter-pills {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .dept-pill-btn {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 6px 12px;
+      border-radius: 99px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .dept-pill-btn:hover {
+      color: var(--text-main);
+      border-color: var(--sage-green);
+    }
+
+    .dept-pill-btn.active {
+      background: var(--moss-green);
+      color: #FFFFFF;
+      border-color: var(--moss-green);
+    }
+
+    .dept-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background-color: var(--moss-green-light);
+      color: var(--moss-green);
+      white-space: nowrap;
+    }
+
+    .row-dept-subtotal td {
+      background-color: #F8FAFC;
+      font-weight: 700 !important;
+      color: var(--moss-green) !important;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    .row-grand-total td {
+      background-color: var(--moss-green-light);
+      font-weight: 700 !important;
+      color: var(--moss-green) !important;
+      border-top: 2px solid var(--moss-green);
+      font-size: 13.5px;
+    }
+
+    .target-inline-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .target-mini-track {
+      width: 54px;
+      height: 6px;
+      background-color: #E2E8F0;
+      border-radius: 99px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .target-mini-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table.clean-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    table.clean-table th {
+      text-align: left;
+      color: var(--text-sub);
+      font-weight: 600;
+      font-size: 12px;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    table.clean-table th.num,
+    table.clean-table td.num {
+      text-align: right;
+    }
+
+    table.clean-table td {
+      padding: 10px 6px;
+      border-bottom: 1px solid #F1F5F9;
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    table.clean-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rank-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11.5px;
+      font-weight: 700;
+      background-color: #F1F5F9;
+      color: var(--text-sub);
+    }
+
+    .rank-1 {
+      background-color: var(--metallic-gold);
+      color: #FFFFFF;
+    }
+
+    .rank-2 {
+      background-color: #CBD5E1;
+      color: #1E293B;
+    }
+
+    .rank-3 {
+      background-color: #D6A886;
+      color: #FFFFFF;
+    }
+
+    .table-footer-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 9px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .table-footer-btn:hover {
+      background-color: #E2E8F0;
+    }
+
+    /* AUDIT & VERIFICATION PANEL */
+    .audit-panel {
+      margin-top: 22px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 18px 24px;
+      font-size: 12.5px;
+      color: var(--text-sub);
+      line-height: 1.6;
+    }
+
+    .audit-panel strong {
+      color: var(--text-main);
+    }
+
+    /* PRINT / PDF */
+    @media print {
+      .sidebar, .data-status-bar, .top-actions .btn-outline, .top-actions .btn-gold {
+        display: none !important;
+      }
+      .main-content {
+        margin-left: 0 !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+      body {
+        background-color: #FFFFFF;
+      }
+    }
+
+    /* =========================================
+       RESPONSIVE TỐI ƯU CHO LAPTOP, TABLET & MOBILE
+       ========================================= */
+
+   /* 1. Màn hình Tablet (Dưới 1080px - Đã hạ xuống để Laptop giữ nguyên 4 cột) */
+    @media (max-width: 1080px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr); /* Đưa KPI về 2 cột */
+      }
+      .charts-grid {
+        grid-template-columns: 1fr; /* Biểu đồ xếp dọc */
+      }
+      .tables-grid {
+        grid-template-columns: 1fr; /* Các bảng xếp dọc */
+      }
+      .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* 2. Màn hình Mobile (Điện thoại dưới 768px) */
+    @media (max-width: 768px) {
+      /* Căn lề lại nội dung chính gọn hơn */
+      .main-content {
+        margin-left: 0;
+        max-width: 100vw;
+        padding: 12px; 
+      }
+      
+      /* Căn chỉnh thanh Top Bar (Tiêu đề và Nút thao tác) */
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      
+      /* Dàn đều các nút thao tác (Tabs, Date picker) */
+      .top-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      
+      /* Tab Menu: Cho phép vuốt ngang trên điện thoại nếu quá dài */
+      .app-tabs-nav {
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch; /* Cuộn mượt trên iOS */
+        padding-bottom: 4px;
+      }
+      
+      /* Khung chọn ngày trải dài 100% màn hình Mobile */
+      .date-range-box {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      /* Đưa KPI về 1 cột trên Mobile */
+      .kpi-grid, .filter-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      /* Giảm nhẹ cỡ chữ KPI để tránh bị ngợp trên Mobile */
+      .kpi-value {
+        font-size: 22px; 
+      }
+      
+      /* Advanced Panel (Menu 3 chấm) full màn hình */
+      .advanced-panel {
+        width: calc(100vw - 24px) !important;
+        right: 12px !important;
+        top: 60px !important;
+      }
+
+      /* Tối ưu phần Tab Khách hàng lâu chưa mua (Churn) */
+      .churn-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .churn-filters {
+        width: 100%;
+        flex-wrap: wrap; /* Cho phép các nút lọc rớt dòng */
+      }
+      .churn-search {
+        width: 100% !important; /* Thanh tìm kiếm full width */
+      }
+      .churn-stats-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 cột thẻ thống kê trên mobile */
+      }
+      
+      /* Hỗ trợ vuốt ngang mượt mà cho tất cả các bảng dữ liệu */
+      .table-wrap {
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+
+    /* 3. Màn hình điện thoại cực nhỏ (Dưới 480px) */
+    @media (max-width: 480px) {
+      .churn-stats-grid {
+        grid-template-columns: 1fr; /* Các thẻ thống kê Churn xếp 1 cột */
+      }
+      .action-grid {
+        grid-template-columns: 1fr; /* Các nút trong Menu 3 chấm xếp 1 cột */
+      }
+    }
+    /* MENU 3 CHẤM & DROPDOWN (APPLE STYLE) */
+    .menu-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .btn-icon:hover {
+      background-color: var(--bg-main);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: 48px;
+      right: 0;
+      width: 220px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 8px;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: top right;
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-main);
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .dropdown-item:hover {
+      background: var(--bg-main);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 6px 0;
+    }
+
+    /* ADVANCED FILTER POPOVER PANEL */
+    .advanced-panel {
+      position: absolute;
+      top: 48px;
+      right: 0;
+      width: 340px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12);
+      padding: 20px;
+      z-index: 1001;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* BỔ SUNG CSS CHO NHÓM THAO TÁC BÊN TRONG POPOVER */
+    .panel-section-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+    }
+
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .panel-action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 8px;
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .panel-action-btn:hover {
+      background: #E2E8F0;
+    }
+
+    .panel-action-btn.gold {
+      background: var(--metallic-gold-light);
+      border-color: var(--metallic-gold);
+      color: #785E24;
+    }
+
+    .panel-action-btn.gold:hover {
+      background: #F0E6D2;
+    }
+
+    .btn-link {
+      background: transparent;
+      border: none;
+      color: var(--lotte-red);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+    }
+    .advanced-panel.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .advanced-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .advanced-panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .btn-close {
+      background: transparent;
+      border: none;
+      font-size: 18px;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .btn-close:hover {
+      background: #F1F5F9;
+      color: var(--text-main);
+    }
+
+    .advanced-filter-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    /* Overlay để click ra ngoài đóng menu */
+    .backdrop-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 999;
+      display: none;
+    }
+    .backdrop-overlay.show {
+      display: block;
+    }
+   /* APPLE SEGMENTED TABS NAVIGATION (2 MAIN TABS) */
+    .app-tabs-nav {
+      display: inline-flex;
+      background-color: #E2E8F0;
+      padding: 4px;
+      border-radius: 14px;
+      gap: 4px;
+    }
+
+    .app-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .app-tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .app-tab-btn.active {
+      background-color: var(--card-bg);
+      color: var(--moss-green);
+      box-shadow: 0 2px 8px rgba(47, 47, 47, 0.08);
+    }
+
+    .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background-color: #FEF2F2;
+      color: var(--lotte-red);
+      transition: all 0.2s ease;
+    }
+
+    .app-tab-btn.active .tab-badge {
+      background-color: var(--lotte-red);
+      color: #FFFFFF;
+    }
+
+    .tab-view-pane {
+      display: none;
+      animation: fadeTabIn 0.22s ease-out;
+    }
+
+    .tab-view-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeTabIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* CHURN CUSTOMERS SECTION (APPLE STYLE) */
+    .churn-section {
+      margin-top: 4px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-card);
+      padding: 24px;
+      box-shadow: var(--shadow-soft);
+    }
+    .churn-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .churn-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .churn-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background-color: #FEF2F2;
+      color: var(--lotte-red);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .churn-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .churn-filter-btn {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 8px 14px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .churn-filter-btn.active {
+      background: var(--moss-green);
+      color: #FFF;
+      border-color: var(--moss-green);
+    }
+    .churn-search {
+      padding: 8px 16px;
+      border-radius: 99px;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      outline: none;
+      width: 240px;
+      background: var(--bg-main);
+    }
+    .churn-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .churn-stat-card {
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      background: #FAFAFA;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .churn-stat-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-sub);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .churn-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-status.red { background: #FEF2F2; color: #DC2626; }
+    .badge-status.orange { background: #FFF7ED; color: #EA580C; }
+    .badge-status.yellow { background: #FEF9C3; color: #CA8A04; }
+    .badge-status.green { background: #DCFCE7; color: #16A34A; }
+    
+    .churn-pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      font-size: 13px;
+      color: var(--text-sub);
+    }
+    .page-controls button {
+      background: var(--bg-main);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .page-controls button.active {
+      background: var(--moss-green);
+      color: #FFF;
+      border-color: var(--moss-green);
+    }
+  </style>
+</head>
+<body>
+
+<!-- MAIN CONTENT (FULL SCREEN) -->
+  <main class="main-content">
+
+    <!-- HEADER -->
+    <header class="top-bar">
+<div class="page-title" style="display: flex; align-items: center;">
+        <div>
+          <!-- Logo hiển thị chuẩn, không bị phóng to -->
+          <div style="margin-bottom: 8px; margin-left: -4px;">
+            <img src="https://lh3.googleusercontent.com/d/1GvOVVkPWXTpT3F3HieMlQVjTE-lPhcRD" alt="LOTTE MART Logo" style="height: 36px; width: auto; object-fit: contain;" />
+          </div>
+          
+          <h1 style="margin-bottom: 4px;">Báo cáo doanh số</h1>
+          
+          <!-- STATUS TÍCH HỢP GỌN GÀNG VÀO SUBTITLE -->
+          <div style="font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 6px;">
+            <span class="status-dot" id="statusDot" style="width: 8px; height: 8px; background-color: var(--moss-green); border-radius: 50%; display: inline-block;"></span>
+            <span id="dataStatusText">Đã nạp Target 2026. Mở ⋮ để đồng bộ dữ liệu giao dịch.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- THANH MENU CHUYỂN ĐỔI 2 TAB CHÍNH -->
+      <div class="top-actions">
+        <nav class="app-tabs-nav" aria-label="Menu chính">
+          <button type="button" class="app-tab-btn active" id="tabBtnSales" onclick="switchMainTab('SALES')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            <span>Báo cáo doanh số</span>
+          </button>
+          <button type="button" class="app-tab-btn" id="tabBtnChurn" onclick="switchMainTab('CHURN')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>
+            <span>Khách hàng cần chăm sóc</span>
+            <span class="tab-badge" id="navChurnBadge">0</span>
+          </button>
+        </nav>
+
+        <div class="date-range-box">
+          <span>📅</span>
+          <input type="date" id="startDate" value="2026-01-01" onchange="applyAllFilters()" />
+          <span>→</span>
+          <input type="date" id="endDate" value="2026-12-31" onchange="applyAllFilters()" />
+        </div>
+
+        <!-- NÚT MENU 3 CHẤM B2B -->
+        <div class="menu-wrapper">
+          <button class="btn-icon" onclick="toggleAdvancedPanel(event)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+          </button>
+          
+          <!-- ADVANCED POPOVER PANEL (GOM CHUNG THAO TÁC & BỘ LỌC) -->
+          <div id="advancedFilterPanel" class="advanced-panel" onclick="event.stopPropagation()">
+            <div class="advanced-panel-header">
+              <span class="advanced-panel-title">Tùy chọn & Bộ lọc</span>
+              <button class="btn-close" onclick="closeAllMenus()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            
+            <!-- NHÓM 1: THAO TÁC DỮ LIỆU -->
+            <div class="panel-section-title">Thao tác dữ liệu</div>
+            <div class="action-grid">
+              <label class="panel-action-btn gold" for="excelUploadInput">
+                📂 Nạp Excel
+              </label>
+              <button class="panel-action-btn" onclick="syncFromGoogleSheet(); closeAllMenus();">
+                🔄 Đồng bộ Sheets
+              </button>
+              <button class="panel-action-btn" onclick="window.print(); closeAllMenus();">
+                ↓ Xuất PDF
+              </button>
+              <button class="panel-action-btn" onclick="exportFilteredCSV(); closeAllMenus();">
+                ⬇ Xuất CSV
+              </button>
+            </div>
+
+            <div class="dropdown-divider" style="margin: 18px 0;"></div>
+
+            <!-- NHÓM 2: BỘ LỌC NÂNG CAO -->
+            <div class="panel-section-title" style="display:flex; justify-content:space-between; align-items:center;">
+              <span>Bộ lọc dữ liệu</span>
+              <button class="btn-link" onclick="resetFilters()">Đặt lại</button>
+            </div>
+            <div class="advanced-filter-list">
+              <div class="filter-pill" style="box-shadow: none; border-color: #E2E8F0;">
+                <label>Tháng</label>
+                <select id="filterMonth" onchange="applyAllFilters()">
+                  <option value="ALL">Tất cả (T1 - T12)</option>
+                  <option value="1">Tháng 01/2026</option>
+                  <option value="2">Tháng 02/2026</option>
+                  <option value="3">Tháng 03/2026</option>
+                  <option value="4">Tháng 04/2026</option>
+                  <option value="5">Tháng 05/2026</option>
+                  <option value="6">Tháng 06/2026</option>
+                  <option value="7">Tháng 07/2026</option>
+                  <option value="8">Tháng 08/2026</option>
+                  <option value="9">Tháng 09/2026</option>
+                  <option value="10">Tháng 10/2026</option>
+                  <option value="11">Tháng 11/2026</option>
+                  <option value="12">Tháng 12/2026</option>
+                </select>
+              </div>
+              <div class="filter-pill" style="box-shadow: none; border-color: #E2E8F0;">
+                <label>Khách hàng</label>
+                <select id="filterCustomer" onchange="applyAllFilters()">
+                  <option value="ALL">Tất cả</option>
+                </select>
+              </div>
+              <div class="filter-pill" style="box-shadow: none; border-color: #E2E8F0;">
+                <label>Tệp KH</label>
+                <select id="filterSegment" onchange="applyAllFilters()">
+                  <option value="ALL">Tất cả</option>
+                </select>
+              </div>
+              <div class="filter-pill" style="box-shadow: none; border-color: #E2E8F0;">
+                <label>Ngành hàng</label>
+                <select id="filterCategory" onchange="applyAllFilters()">
+                  <option value="ALL">Tất cả</option>
+                </select>
+              </div>
+              <div class="filter-pill" style="box-shadow: none; border-color: #E2E8F0;">
+                <label>Tìm kiếm</label>
+                <input type="text" id="filterSearch" placeholder="Mã/tên SP, mã KH..." oninput="debounceApplyFilters()" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- KẾT THÚC MENU 3 CHẤM -->
+        
+        <!-- Input ẩn xử lý Upload Excel phải đặt ra ngoài Popover để tránh lỗi Focus -->
+        <input type="file" id="excelUploadInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleExcelUpload(event); closeAllMenus();" />
+
+      </div>
+    </header>
+
+    <!-- BACKDROP OVERLAY CHO MENU -->
+    <div id="menuBackdrop" class="backdrop-overlay" onclick="closeAllMenus()"></div>
+
+    <!-- ĐÃ XÓA KHỐI STATUS BANNER ĐỂ TIẾT KIỆM KHÔNG GIAN -->
+
+    <!-- ==================== TAB 1: BÁO CÁO DOANH SỐ ==================== -->
+    <div id="tabSalesView" class="tab-view-pane active">
+
+    <!-- 4 KPI CARDS B2B -->
+    <section class="kpi-grid">
+      
+      <!-- KPI 1: DOANH THU THUẦN (TÍCH HỢP TARGET & TĂNG TRƯỞNG) -->
+      <div class="kpi-card" style="grid-column: span 1; min-height: 180px;">
+        <div class="kpi-header">
+          <div class="kpi-title-group">
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            </div>
+            <span class="kpi-label">Doanh thu thuần</span>
+          </div>
+          <span style="color:var(--text-sub);font-weight:700;">•••</span>
+        </div>
+        <div class="kpi-value" id="kpiNetRevenue" style="margin-bottom: 0;">0 <span class="currency">đ</span></div>
+        
+        <div class="kpi-stats-list">
+          <div class="kpi-stat-row">
+            <span class="kpi-stat-label">Mục tiêu (Đạt)</span>
+            <span class="kpi-stat-val">
+              <span id="kpiTargetMonth" style="color:var(--moss-green);">0%</span> Tháng / 
+              <span id="kpiTargetYear">0%</span> Năm
+            </span>
+          </div>
+          <div class="kpi-stat-row">
+            <span class="kpi-stat-label">Tăng trưởng</span>
+            <span class="kpi-stat-val">
+              <span id="kpiGrowthMoM" class="badge-trend neutral">N/A</span> MoM | 
+              <span id="kpiGrowthYoY" class="badge-trend neutral">N/A</span> YoY
+            </span>
+          </div>
+        </div>
+      </div>
+
+     <!-- KPI 2: LỢI NHUẬN (TÍCH HỢP TARGET PROFIT & TĂNG TRƯỞNG) -->
+      <div class="kpi-card" style="min-height: 180px;">
+        <div class="kpi-header">
+          <div class="kpi-title-group">
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"/><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"/></svg>
+            </div>
+            <span class="kpi-label">Lợi nhuận</span>
+          </div>
+          <span id="kpiProfitSub" style="font-size:11.5px; font-weight:600; color:var(--moss-green); background:var(--moss-green-light); padding:3px 8px; border-radius:99px;">Biên LN: 0.0%</span>
+        </div>
+        <div class="kpi-value" id="kpiProfit" style="margin-bottom: 0;">0 <span class="currency">đ</span></div>
+        
+        <div class="kpi-stats-list">
+          <div class="kpi-stat-row">
+            <span class="kpi-stat-label">Mục tiêu (Đạt)</span>
+            <span class="kpi-stat-val">
+              <span id="kpiProfitTargetMonth" style="color:var(--moss-green);">0%</span> Tháng / 
+              <span id="kpiProfitTargetYear">0%</span> Năm
+            </span>
+          </div>
+          <div class="kpi-stat-row">
+            <span class="kpi-stat-label">Tăng trưởng</span>
+            <span class="kpi-stat-val">
+              <span id="kpiProfitGrowthMoM" class="badge-trend neutral">N/A</span> MoM | 
+              <span id="kpiProfitGrowthYoY" class="badge-trend neutral">N/A</span> YoY
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 3: TỆP KHÁCH HÀNG -->
+      <div class="kpi-card" style="min-height: 180px;">
+        <div class="kpi-header">
+          <div class="kpi-title-group">
+            <div class="kpi-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <span class="kpi-label">Tệp khách hàng</span>
+          </div>
+        </div>
+        <div class="kpi-value" id="kpiCustomers">0</div>
+        <div class="kpi-footer" id="kpiCustomersSub">Số bill: 0 | ĐH TB: 0 đ</div>
+      </div>
+
+      <!-- KPI 4: THẺ QUÀ TẶNG (NEW) -->
+      <div class="kpi-card" style="min-height: 180px; background-color: var(--metallic-gold-light); border-color: var(--metallic-gold);">
+        <div class="kpi-header">
+          <div class="kpi-title-group">
+            <div class="kpi-icon gold" style="background-color: #FFFFFF;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+            <span class="kpi-label" style="color: #785E24;">Thẻ quà tặng</span>
+          </div>
+        </div>
+        <div class="kpi-value" style="color: #785E24;">0 <span class="currency">đ</span></div>
+        <div class="kpi-footer" style="color: #927534; font-weight: 500;">Số lượng xuất: 0 thẻ (Chưa có dữ liệu)</div>
+      </div>
+    </section>
+
+    <!-- CHARTS ROW -->
+    <section class="charts-grid">
+      <!-- CHART 1: DOANH THU THEO THỜI GIAN -->
+      <div class="card-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Doanh thu theo thời gian</div>
+            <div class="panel-subtitle" id="timeChartSubtitle">Đơn vị: Triệu đồng | So sánh Thực tế vs Target (Sheet Năm ngoái: Chưa có dữ liệu)</div>
+          </div>
+          <div class="segmented-control">
+            <button class="segmented-btn" id="btnViewDay" onclick="setTimeGranularity('DAY')">Ngày</button>
+            <button class="segmented-btn" id="btnViewWeek" onclick="setTimeGranularity('WEEK')">Tuần</button>
+            <button class="segmented-btn active" id="btnViewMonth" onclick="setTimeGranularity('MONTH')">Tháng</button>
+            <button class="segmented-btn" id="btnViewYear" onclick="setTimeGranularity('YEAR')">Năm</button>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="revenueTimeChart"></canvas>
+        </div>
+      </div>
+
+      <!-- CHART 2: CƠ CẤU DOANH THU THEO NGÀNH HÀNG -->
+      <div class="card-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Cơ cấu doanh thu theo ngành hàng</div>
+            <div class="panel-subtitle">Đơn vị: Triệu đồng | Tỷ trọng (%)</div>
+          </div>
+          <select id="catLimitSelect" onchange="applyAllFilters()" style="border:1px solid var(--border-color);border-radius:8px;padding:5px 10px;font-size:12.5px;color:var(--text-main);background:var(--card-bg);">
+            <option value="7">Top 7</option>
+            <option value="10" selected>Top 10</option>
+            <option value="31">Tất cả (31)</option>
+          </select>
+        </div>
+        <div class="cat-bars-list" id="categoryBarsContainer"></div>
+      </div>
+    </section>
+
+    <!-- 3 TABLES ROW -->
+    <section class="tables-grid">
+      <!-- TABLE 1: TOP 10 KHÁCH HÀNG -->
+      <div class="card-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Top 10 khách hàng</div>
+            <div class="panel-subtitle">Xếp theo Doanh thu thuần (Triệu đồng)</div>
+          </div>
+          <span style="color:var(--text-sub);font-weight:600;">›</span>
+        </div>
+        <div class="table-wrap">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:34px;">#</th>
+                <th>Khách hàng (Mã KH / Tệp)</th>
+                <th class="num">Doanh thu</th>
+                <th class="num">Tỷ trọng</th>
+              </tr>
+            </thead>
+            <tbody id="topCustomersBody"></tbody>
+          </table>
+        </div>
+        <button class="table-footer-btn" id="btnToggleCustomers" onclick="toggleTableRows('customers')">Xem thêm (Top 10) ›</button>
+      </div>
+
+      <!-- TABLE 2: TOP 10 SẢN PHẨM -->
+      <div class="card-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Top 10 sản phẩm</div>
+            <div class="panel-subtitle">Xếp theo Doanh thu thuần (Triệu đồng)</div>
+          </div>
+          <span style="color:var(--text-sub);font-weight:600;">›</span>
+        </div>
+        <div class="table-wrap">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:34px;">#</th>
+                <th>Mã SP</th>
+                <th>Tên sản phẩm</th>
+                <th class="num">Doanh thu</th>
+                <th class="num">SL bán</th>
+              </tr>
+            </thead>
+            <tbody id="topProductsBody"></tbody>
+          </table>
+        </div>
+        <button class="table-footer-btn" id="btnToggleProducts" onclick="toggleTableRows('products')">Xem thêm (Top 10) ›</button>
+      </div>
+
+      <!-- TABLE 3: NGÀNH HÀNG TĂNG TRƯỞNG / SO SÁNH -->
+      <div class="card-panel">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Top 10 ngành hàng tăng trưởng</div>
+            <div class="panel-subtitle" id="growthTableSubtitle">So sánh kỳ hợp lệ / % Đạt Target</div>
+          </div>
+          <span style="color:var(--text-sub);font-weight:600;">›</span>
+        </div>
+        <div class="table-wrap">
+          <table class="clean-table">
+            <thead>
+              <tr>
+                <th style="width:34px;">#</th>
+                <th>Ngành hàng</th>
+                <th class="num">Doanh thu</th>
+                <th class="num" id="growthColHeader">Tăng trưởng</th>
+              </tr>
+            </thead>
+            <tbody id="topGrowthBody"></tbody>
+          </table>
+        </div>
+       <button class="table-footer-btn" id="btnToggleGrowth" onclick="toggleTableRows('growth')">Xem thêm (Top 10) ›</button>
+      </div>
+    </section>
+
+    <!-- BẢNG CHI TIẾT BỘ PHẬN & 31 NGÀNH HÀNG -->
+    <section class="card-panel dept-table-section">
+      <div class="panel-header" style="flex-wrap: wrap; gap: 14px;">
+        <div>
+          <div class="panel-title">Chi tiết doanh thu theo Bộ phận & Ngành hàng</div>
+          <div class="panel-subtitle" id="deptTableSubtitle">Đầy đủ 6 Bộ phận & 31 Ngành hàng chuẩn hóa | Đơn vị: VNĐ</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div class="dept-filter-pills" id="deptFilterPills">
+            <button type="button" class="dept-pill-btn active" onclick="setDivisionFilter('ALL', event)">Tất cả (31)</button>
+            <button type="button" class="dept-pill-btn" onclick="setDivisionFilter('Fresh Food 1', event)">Fresh Food 1</button>
+            <button type="button" class="dept-pill-btn" onclick="setDivisionFilter('Fresh Food 2', event)">Fresh Food 2</button>
+            <button type="button" class="dept-pill-btn" onclick="setDivisionFilter('H&B', event)">H&B</button>
+            <button type="button" class="dept-pill-btn" onclick="setDivisionFilter('Home & Fashion', event)">Home & Fashion</button>
+            <button type="button" class="dept-pill-btn" onclick="setDivisionFilter('Meal Solution', event)">Meal Solution</button>
+            <button type="button" class="dept-pill-btn" onclick="setDivisionFilter('Processed Food', event)">Processed Food</button>
+          </div>
+          <label style="display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-sub); font-weight:600; cursor:pointer; margin-left:4px;">
+            <input type="checkbox" id="toggleDeptSubtotal" checked onchange="renderDepartmentCategoryTable()" style="accent-color: var(--moss-green); cursor:pointer;" />
+            Nhóm theo Bộ phận
+          </label>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="max-height: 640px; overflow-y: auto;">
+        <table class="clean-table" style="min-width: 1020px;">
+          <thead style="position: sticky; top: 0; background: var(--card-bg); z-index: 5; box-shadow: 0 1px 0 var(--border-color);">
+            <tr>
+              <th style="width: 150px;">Bộ phận</th>
+              <th style="width: 170px;">Ngành hàng</th>
+              <th class="num">Doanh thu thực tế</th>
+              <th class="num">Tỷ trọng doanh thu (%)</th>
+              <th class="num">Mục tiêu doanh thu</th>
+              <th class="num">Tỷ lệ hoàn thành mục tiêu (%)</th>
+              <th class="num">Doanh thu cùng kỳ năm ngoái</th>
+              <th class="num">Tăng trưởng so với năm ngoái (%)</th>
+            </tr>
+          </thead>
+          <tbody id="deptCategoryTableBody"></tbody>
+          <tfoot id="deptCategoryTableFoot"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- BIỂU ĐỒ PHÂN TÍCH LỢI NHUẬN THEO TỆP KHÁCH HÀNG -->
+    <section class="card-panel profit-chart-section" style="margin-bottom: 22px;">
+      <div class="panel-header" style="margin-bottom: 24px;">
+        <div>
+          <div class="panel-title">Phân tích lợi nhuận theo tệp khách hàng</div>
+          <div class="panel-subtitle">Đơn vị: Triệu đồng | So sánh Thực tế vs Target (Theo kỳ lọc)</div>
+        </div>
+      </div>
+      
+      <!-- Chart -->
+      <div class="chart-container" style="height: 320px; margin-bottom: 28px;">
+        <canvas id="profitSegmentChart"></canvas>
+      </div>
+
+      <!-- Bảng chi tiết Lợi nhuận theo Tệp KH -->
+      <div class="table-wrap" style="max-height: 480px; overflow-y: auto; border-top: 1px solid var(--border-color); padding-top: 16px;">
+        <table class="clean-table" style="min-width: 900px;">
+          <thead style="position: sticky; top: 0; background: var(--card-bg); z-index: 5; box-shadow: 0 1px 0 var(--border-color);">
+            <tr>
+              <th>Tệp khách hàng</th>
+              <th class="num">Lợi nhuận thực tế</th>
+              <th class="num">Tỷ trọng lợi nhuận (%)</th>
+              <th class="num">Mục tiêu lợi nhuận</th>
+              <th class="num">Tỷ lệ hoàn thành mục tiêu (%)</th>
+              <th class="num">Lợi nhuận cùng kỳ năm ngoái</th>
+              <th class="num">Tăng trưởng so với năm ngoái (%)</th>
+            </tr>
+          </thead>
+<tbody id="profitSegmentTableBody"></tbody>
+          <tfoot id="profitSegmentTableFoot"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <!-- BIỂU ĐỒ SỐ KHÁCH HÀNG MUA HÀNG -->
+    <section class="card-panel customer-chart-section" style="margin-bottom: 22px;">
+      <div class="panel-header" style="margin-bottom: 24px;">
+        <div>
+          <div class="panel-title">Phân tích số lượng khách hàng theo tệp</div>
+          <div class="panel-subtitle">Đơn vị: Khách hàng (Unique) | So sánh Thực tế vs Target (Theo kỳ lọc)</div>
+        </div>
+      </div>
+      
+      <!-- Chart -->
+      <div class="chart-container" style="height: 320px; margin-bottom: 28px;">
+        <canvas id="customerSegmentChart"></canvas>
+      </div>
+
+      <!-- Bảng chi tiết Số lượng Khách mua theo Tệp KH -->
+      <div class="table-wrap" style="max-height: 480px; overflow-y: auto; border-top: 1px solid var(--border-color); padding-top: 16px;">
+        <table class="clean-table" style="min-width: 900px;">
+          <thead style="position: sticky; top: 0; background: var(--card-bg); z-index: 5; box-shadow: 0 1px 0 var(--border-color);">
+            <tr>
+              <th>Tệp khách hàng</th>
+              <th class="num">Khách mua thực tế</th>
+              <th class="num">Tỷ trọng khách mua (%)</th>
+              <th class="num">Mục tiêu khách mua</th>
+              <th class="num">Tỷ lệ hoàn thành mục tiêu (%)</th>
+              <th class="num">Khách mua cùng kỳ năm ngoái</th>
+              <th class="num">Tăng trưởng so với năm ngoái (%)</th>
+            </tr>
+          </thead>
+          <tbody id="customerSegmentTableBody"></tbody>
+          <tfoot id="customerSegmentTableFoot"></tfoot>
+        </table>
+      </div>
+    </section>
+    </div>
+    <!-- ==================== KẾT THÚC TAB 1 ==================== -->
+
+    <!-- ==================== TAB 2: KHÁCH HÀNG LÂU CHƯA MUA ==================== -->
+    <div id="tabChurnView" class="tab-view-pane">
+    <!-- CHURN CUSTOMERS SECTION -->
+    <section class="churn-section">
+      <div class="churn-header">
+        <div class="churn-title">
+          <div class="churn-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="17" y1="8" x2="23" y2="14"/><line x1="23" y1="8" x2="17" y2="14"/></svg>
+          </div>
+          <div>
+            <h2 style="font-size: 18px; font-weight: 700; color: var(--text-main);">Khách hàng lâu chưa mua</h2>
+            <p style="font-size: 12.5px; color: var(--text-sub); margin-top: 2px;">Danh sách khách hàng chưa phát sinh đơn hàng theo số ngày gần nhất ⓘ</p>
+          </div>
+        </div>
+        <div class="churn-filters">
+          <button class="churn-filter-btn active" onclick="setChurnFilter('ALL')">Tất cả (<span id="countAll">0</span>)</button>
+          <button class="churn-filter-btn" onclick="setChurnFilter('30')">≥ 30 ngày (<span id="count30">0</span>)</button>
+          <button class="churn-filter-btn" onclick="setChurnFilter('45')">≥ 45 ngày (<span id="count45">0</span>)</button>
+          <button class="churn-filter-btn" onclick="setChurnFilter('60')">≥ 60 ngày (<span id="count60">0</span>)</button>
+          <input type="text" class="churn-search" id="churnSearchInput" placeholder="🔍 Tìm tên, mã KH..." oninput="renderChurnTable()">
+        </div>
+      </div>
+
+      <div class="churn-stats-grid">
+        <div class="churn-stat-card">
+          <div class="churn-stat-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Tổng khách hàng cần theo dõi
+          </div>
+          <div class="churn-stat-value">
+            <span id="statTotalChurn">0</span>
+            <span style="font-size: 12px; color: var(--text-sub); font-weight: 500;">(Tính từ mốc 30 ngày)</span>
+          </div>
+        </div>
+        <div class="churn-stat-card">
+          <div class="churn-stat-title">≥ 30 ngày</div>
+          <div class="churn-stat-value">
+            <span id="stat30">0</span>
+            <span class="badge-status yellow">Theo dõi</span>
+          </div>
+        </div>
+        <div class="churn-stat-card">
+          <div class="churn-stat-title">≥ 45 ngày</div>
+          <div class="churn-stat-value">
+            <span id="stat45">0</span>
+            <span class="badge-status orange">Cần liên hệ</span>
+          </div>
+        </div>
+        <div class="churn-stat-card">
+          <div class="churn-stat-title">≥ 60 ngày</div>
+          <div class="churn-stat-value">
+            <span id="stat60">0</span>
+            <span class="badge-status red">Ưu tiên liên hệ</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="clean-table" style="min-width: 1000px;">
+          <thead>
+            <tr>
+              <th style="width:34px;">#</th>
+              <th>Mã KH</th>
+              <th>Tên khách hàng</th>
+              <th>Tệp KH</th>
+              <th>Ngày mua gần nhất</th>
+              <th style="color: var(--lotte-red);">Số ngày chưa mua</th>
+              <th class="num">Doanh thu lần cuối</th>
+              <th class="num">Doanh thu 3 tháng</th>
+              <th>Trạng thái liên hệ</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody id="churnTableBody"></tbody>
+        </table>
+      </div>
+      
+      <div class="churn-pagination">
+        <div id="churnPageInfo">Hiển thị 0 - 0 trong 0 khách hàng</div>
+        <div class="page-controls" id="churnPageControls">
+          <!-- Rendered via JS -->
+        </div>
+        <div>
+          Số dòng: 
+          <select id="churnRowsSelect" onchange="changeChurnRows()" style="border:1px solid var(--border-color); border-radius:6px; padding:4px;">
+            <option value="8">8</option>
+            <option value="15">15</option>
+            <option value="30">30</option>
+          </select>
+        </div>
+      </div>
+    </section>
+    </div>
+    <!-- ==================== KẾT THÚC TAB 2 ==================== -->
+
+    <!-- AUDIT LOG & FORMULA TRANSPARENCY -->
+    <section class="audit-panel">
+      <div><strong>🔍 Đối chiếu dữ liệu & Công thức chuẩn hóa (Data Audit):</strong></div>
+      <div id="auditSummaryText" style="margin-top:4px;"></div>
+    </section>
+
+  </main>
+
+  <script>
+    /*************************************************************************
+     * 1. DỮ LIỆU TARGET CHÍNH THỨC TỪ SHEET "Target" (Đơn vị: VNĐ)
+     *    31 Ngành hàng x 12 Tháng (Tuyệt đối không cộng trùng dòng Total)
+     *************************************************************************/
+    const OFFICIAL_TARGET_2026 = {
+      "CONFECTIONERY": [1965473799, 855728303, 797986575, 970186688, 1317207477, 1073082994, 1066609421, 1068616764, 831837091, 1377339042, 1068728088, 1393331950],
+      "BEVERAGE": [1159044310, 149375296, 212247646, 325738682, 39768235, 46013315, 151476279, 76985983, 231050405, 365613881, 377689770, 936163204],
+      "ALCOHOL": [2100409750, 367788056, 15889256, 53792008, 6133816, 856366341, 631197271, 431631818, 770589475, 838284376, 961794009, 889105281],
+      "SANITARY": [39316136, 65453797, 63330845, 32235553, 36533043, 36819060, 39848682, 64457572, 18239916, 33805254, 121960662, 215039010],
+      "INSTANT FOOD": [50311355, 303643573, 31773443, 136941529, 371393441, 1038234182, 1169506429, 747397730, 780950207, 109326643, 155011105, 165298383],
+      "SEASONING": [805723736, 276467837, 399320606, 62254853, 122245548, 88868934, 55353848, 127995995, 61861127, 129095405, 99670163, 153483468],
+      "KITCHEN & DINING": [12308737, 18608742, 3741579, 11953759, 6078381, 8467848, 17333610, 7685233, 4445528, 3590236, 8753123, 80082051],
+      "DETERGENT": [344346445, 843502486, 845380927, 674575746, 220008245, 103145770, 32881389, 56779314, 606834306, 250255105, 259294034, 58535286],
+      "DAIRY": [67904504, 41782731, 428103183, 320242596, 225874318, 25232297, 152097973, 98771768, 36025631, 178450100, 237772514, 134570034],
+      "DELICA": [12111766, 2860534, 2782361, 1555849, 829313, 6228268, 3140347, 2105520, 1023964, 1535896, 33120571, 30343139],
+      "PERSONAL CARE": [342867298, 198956757, 422127300, 258582809, 117627848, 17347887, 65525770, 48377333, 25719990, 41154191, 199577035, 19761584],
+      "FRUITS": [4979240, 6100609, 7272031, 8677934, 10078161, 12355548, 19996566, 17493360, 18784673, 31422116, 20970275, 18742658],
+      "COFFEE & TEA": [548576148, 38813185, 17468983, 427096608, 543070511, 159069642, 74754544, 931545865, 284546291, 394995823, 530037246, 400837664],
+      "VEGETABLES": [12805685, 12029369, 13431974, 12976359, 20493646, 17516982, 30044897, 26268736, 22846534, 20976470, 15868845, 13713385],
+      "Cleaning & Bath": [6232178, 4410962, 5442617, 12482025, 4224556, 7140631, 5205509, 15263512, 6161295, 9312154, 10056478, 9565996],
+      "FISHERY": [6450152, 7598478, 8164886, 8332869, 12020849, 10094570, 12682021, 7056861, 6200529, 9429778, 8902187, 5593903],
+      "PORK": [6040755, 3354502, 2435287, 6632642, 4805952, 7389879, 7549747, 5638737, 3587824, 4127791, 3976033, 4390452],
+      "CHILLED FOOD": [90251175, 42900384, 5058690, 2921133, 5984049, 3825522, 4224406, 3597194, 2088408, 2982587, 2856977, 3507968],
+      "POULTRY & EGG": [2745900, 3593929, 3117243, 6242881, 5402913, 7908974, 10245832, 5022822, 4694602, 5770948, 4500374, 2448137],
+      "FROZEN FOOD": [7447128, 4887388, 3220705, 5025049, 3753111, 4572170, 3250933, 3717254, 2406364, 4639030, 4776783, 2237765],
+      "MEN": [3459669, 1709315, 985685, 834795, 1189338, 3183181, 4106994, 1309945, 1672304, 644824, 1007829, 2130945],
+      "BEEF & OTHER": [562592, 465611, 2119462, 1886806, 1706578, 1849424, 1997830, 1141869, 1403369, 3219260, 3494303, 2070647],
+      "TOYS & STATIONERY": [3538966, 10225214, 679894, 246570, 1245265, 1191814, 450446, 258252, 3249499, 6624022, 1037278, 1227385],
+      "BEAUTY": [31493243, 1040197, 2606653, 741616, 304256014, 1719298, 271466, 1071456, 233414, 1175360, 580038, 1083761],
+      "Bedding": [0, 583812, 359320, 2377260, 0, 309276, 216027, 1321992, 618224, 529428, 237737, 972550],
+      "WOMEN": [4233886, 320241, 625389, 396120, 614427, 301189, 1056250, 3243216, 876696, 760437, 704418, 645146],
+      "HOME APPLIANCE": [257182, 1957554, 827846, 6301241, 1176806, 1063039, 3821969, 2890501, 641439, 591413, 2227969, 641168],
+      "BAKERY": [1471069, 1217429, 870269, 721904, 532262, 681638, 589587, 921232, 1423576, 49222105, 1798411, 635374],
+      "HOME DECOR & HOBBY": [5339595, 915214, 190689, 1005814, 2987763, 456603, 170217, 233938, 326863, 4391471, 28607, 503066],
+      "FOOTWEAR & ACCESSORIES": [863016, 383962, 461283, 247508, 215917, 97592, 1001537, 507717, 62963, 550378, 203542, 308190],
+      "KID & BABY": [4260044, 526169, 549895, 97592, 337935, 243274, 1016953, 622245, 410232, 822420, 0, 292883]
+    };
+
+    /*************************************************************************
+     * 2. DỮ LIỆU GIAO DỊCH MẪU TRÍCH XUẤT TRỰC TIẾP TỪ SHEET "Doanh thu"
+     *    (65 dòng đầu tiên thực tế trong file gốc để khởi chạy ngay lập tức)
+     *************************************************************************/
+    const INITIAL_SAMPLE_TRANSACTIONS = [
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8936113380482","CL-K.UOT CHOICE L 80+40M","SANITARY","22,6","4","90,4","23,704","83,704"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8936020761121","SL-KHAN RUT CUC DA 180T*3","SANITARY","33,6","3","100,8","21,21","93,333"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8938503131926","STTT DALAT MILK I.D 180ML*4","DAIRY","35,9","4","143,6","8,867","132,963"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8936035100267","DAU ME TUONG AN 1L","SEASONING","125,9","1","125,9","19,199","116,574"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8886467127090","KHOAI TAY CHIEN PRINGLES CHEESE 95G","CONFECTIONERY","42,5","2","79,8","5,867","73,889"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8997226663886","GN-BANH PUFFS KRISMA PHOMAI 28G","CONFECTIONERY","19","1","13,3","-65","12,315"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8852008510225","BANH QUE TOPPO SOCOLA 132G","CONFECTIONERY","55,9","1","55,9","10,503","51,759"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8936048474553","TRA BONCHA TAC 450ML","BEVERAGE","9,9","6","59,4","7,498","55"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8996001301876","BANH COFFEE JOY 312G","CONFECTIONERY","46,5","1","46,5","4,874","43,056"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8938532962553","BANH KENJU KEM DEO 279G","CONFECTIONERY","65,7","1","44,5","1,531","41,204"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8936104461367","NC YEN NHA DAM YEN VIET CHAI 450ML","BEVERAGE","10,1","1","10,1","1,019","9,352"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8934868197416","NG OMO C.TREN COMFORT TUI 3.8KG","DETERGENT","241,9","1","241,9","42,481","223,981"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8934868167150","ST LFB BVE VTROI TUI 800G","PERSONAL CARE","139,9","1","139,9","10,082","129,537"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","4902430379816","DG H&S S.MEM ONG MUOT 625 ML","PERSONAL CARE","190,9","1","155,9","-1,677","144,352"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","4005808656004","SUA RUA MAT NIVEA NAM K.CHAT BUN 100G","PERSONAL CARE","88,9","1","88,9","28,772","82,315"],
+      ["2026-01-01","1000000723268","8713130000003354","OFFICE","203","287","8934868182627","NRC SUNLIGHT T.XANH GTVAT TUI 3.3KG","DETERGENT","108,5","1","108,5","5,463","100,463"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","203","399","8934673323512","SCU PROBI HUONG DUA 5*65ML","DAIRY","24,5","1","22,3","1,193","20,648"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","203","399","8938502525054","BB THO PHAT KHONG NHAN 300G","CHILLED FOOD","21,9","6","131,4","24,971","121,667"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","203","399","8935063602576","MAM TOM BAC NGOC LIEN 500G","INSTANT FOOD","45,9","1","45,9","6,3","42,5"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","203","399","8935212812726","DG ROMANO SACH GAU FORCE 180G","PERSONAL CARE","68,7","1","68,7","9,889","63,611"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","203","399","8934781062044","VIEN GIA VI BUN BO ONG CHA VA GOLD 126G","SEASONING","18,2","4","72,8","12,727","67,407"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","203","399","717273501577","SOT THIT NUONG AMERICAN GARDEN 510G","SEASONING","95,9","5","479,5","80,981","443,981"],
+      ["2026-01-01","1000002693089","8713000401143772","CANTEEN","204","300","8934804027388","CAFE NES VIET HOP 16G*15 GOI","COFFEE & TEA","66","10","643","63,24","595,37"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","308","8938502118355","F365-TOM THE HAP CPD SIZE 16-25 400G","FISHERY","174,9","1","174,9","41,944","161,944"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","308","78895126389","XI DAU LEE KUM KEE DB 500ML","SEASONING","59,5","1","59,5","8,519","55,093"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","310","8934588290107","TRA OLONG CHANH TEA+ 1L","BEVERAGE","17,6","24","388,8","14,4","360"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","310","8935049501701","TRA DAO CHIA FUZE CHAI 1L","BEVERAGE","16,3","20","326","89,712","301,852"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","310","8934588193101","NUOC TRAI CAY TWSITER CAM 1L","BEVERAGE","21,5","24","516","9,696","360"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","310","2164130000007","CAM SANH VAT NUOC","FRUITS","17,9","1","162,185","27,618","154,462"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","310","2164130000007","CAM SANH VAT NUOC","FRUITS","17,9","1","138,604","23,602","132,004"],
+      ["2026-01-01","1000003142818","8713100000641448","RESTAURANT","203","310","8935049501633","TRA CHANH SA FUZE CHAI 1L","BEVERAGE","16,7","4","66,8","7,691","60,727"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8934868196297","NG OMO MATIC C.TREN TUI 2.9KG","DETERGENT","141,9","1","134,9","20,053","124,907"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8934673501132","SCA SUSU IQ TAO CHUOI 60G*4","DAIRY","26,9","2","49,8","6,235","46,111"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8934673501118","SCA SUSU C.DUONG 60G*4","DAIRY","26,9","2","49,8","6,235","46,111"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8997240600423","SUA YEN MACH OATSIDE T.THONG 180ML*3","DAIRY","32,9","1","32,9","4,513","30,463"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8935304200783","RB TRON HAI SAN OFOOD 40G","INSTANT FOOD","40,5","1","33,9","5,825","31,389"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8935304200240","RONG BIEN TRON GIA VI MIWON 40G","INSTANT FOOD","38,9","1","38,9","6,719","36,019"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8934707029137","HAT NEM KNORR THIT THAN-XUONG-TUY 400G","SEASONING","37,9","1","33,9","6,672","31,389"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8936034877139","XXTT MASAN PHO MAI 384G","CHILLED FOOD","89","1","89","15,74","82,407"],
+      ["2026-01-01","1400000022416","8713430013322797","OFFICE","202","97","8934563122201","HAO HAO BIG 100G TOM CHUA CAY","INSTANT FOOD","4,9","2","9,8","-486","9,074"],
+      ["2026-01-01","1500000513440","8713100001052637","OFFICE","9041","9","400203570001","SB-BANH MI BAGUETTE ME 200G","BAKERY","7,2","22","158,4","78,757","146,667"],
+      ["2026-01-01","1500000539029","8713790000539029","CAFÉ","206","68","8934588232114","NUOC TANG LUC STING DAU SLEEK 320ML","BEVERAGE","10,6","48","355,2","8,605","322,909"],
+      ["2026-01-01","1500000539029","8713790000539029","CAFÉ","206","68","8934564600357","T.XANH C2 H.CHANH 455ML","BEVERAGE","8,6","48","412,8","12,057","375,273"],
+      ["2026-01-01","1500000539029","8713790000539029","CAFÉ","206","68","8935049500698","TRA DAO CHIA 450ML","BEVERAGE","7,9","72","424,8","39,309","393,333"],
+      ["2026-01-01","1500000539029","8713790000539029","CAFÉ","206","68","8934588193569","NUOC TRAI CAY TWISTER CAM CHAI 450ML","BEVERAGE","247,2","4","729,6","19,209","663,273"],
+      ["2026-01-01","1500000539029","8713790000539029","CAFÉ","206","68","58934588063058","NUOC T.KHIET AQUAFINA 500ML","BEVERAGE","120","20","1,872,000","45,653","1,733,333"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","203","78","8936138400042","F365-BAP NGOT GIONG MY LO2","VEGETABLES","23,9","1","23,9","4,762","22,762"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","203","78","2294130000001","BANH NHAN KEM SUA CHUA THD","CONFECTIONERY","0","1","48,24","6,7","44,667"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","203","78","8935061800851","THACH SUA CHUA ABC TUI 930G","CONFECTIONERY","50","1","50","7,396","46,296"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","203","78","2294170000009","THACH MOCHI THD","CONFECTIONERY","0","1","81,054","11,257","75,05"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8935039572544","SOT AJI-MAYO TUYP 430G","SEASONING","54,9","1","54,9","13,176","50,833"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8935039500745","BOT NGOT AJINOMOTO 1.8KG","SEASONING","137,9","1","137,9","28,661","127,685"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","2294170000009","THACH MOCHI THD","CONFECTIONERY","0","1","79,948","11,104","74,026"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","2294100000000","KEO DEO XOAI THD","CONFECTIONERY","0","1","31,68","4,4","29,333"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8938503845045","MUOI SAY IOD TND 1KG","SEASONING","12,9","1","12,9","3,4","12,9"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8935015510454","DUONG BH PURE 1KG","SEASONING","32,5","1","28,5","366","26,389"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","2294090000004","KEO DEO BAP TAN CHAY THD","CONFECTIONERY","0","1","42,4","5,889","39,259"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","2249280000005","KG-KEO SOCOLA QUA BONG TAM HUU DUNG","CONFECTIONERY","0","1","93,28","12,955","86,37"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8935039571127","BOT CANH AJI 190G","SEASONING","5,2","2","10,4","1,366","9,63"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8936035100328","DAU NANH TUONG AN 2L","SEASONING","131,9","1","131,9","27,41","122,13"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8934804021997","DAU HAO MAGGI 820G","SEASONING","45,5","1","53,1","6,831","49,167"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","2210950000007","KEO LAC THD","CONFECTIONERY","0","1","43,93","6,101","40,676"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","4897076062379","BANH GAO VETRUE VI LD TR.MUOI 228G","CONFECTIONERY","78,5","1","78,5","11,685","72,685"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8935061800851","THACH SUA CHUA ABC TUI 930G","CONFECTIONERY","50","1","50","7,396","46,296"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","8934677020318","GUM KHONG DUONG XYLITOL SUPER COOL HU 130.5G","CONFECTIONERY","55,6","1","55,6","14,583","51,481"],
+      ["2026-01-01","1500000743909","8713790000743909","OFFICE","204","7","2273590000004","KHOAI TAY VANG","VEGETABLES","0","1","11,281","1,397","10,744"]
+    ];
+
+   // Dữ liệu Target Profit 2026 theo Tệp khách hàng (Đơn vị: VNĐ - Trích xuất từ dòng 38-44 Sheet "Target")
+    // Lưu ý: Tháng 11 & Tháng 12 sẽ được cập nhật tự động 100% khi đồng bộ từ Google Sheets hoặc nạp file Excel
+    const OFFICIAL_TARGET_PROFIT_2026 = {
+      "AGENCY":     [141333131, 67519164, 76551903, 68445612, 60021916, 66737236, 68764572, 71060482, 86262325, 78606176, 0, 0],
+      "OFFICE":     [431112851, 118515013, 84005558, 83102666, 79288888, 74058481, 61056057, 78676812, 76736888, 91890004, 0, 0],
+      "HORECA":     [66921876, 60430076, 68263253, 91605066, 115965288, 100582378, 96256525, 99146172, 68583078, 100465844, 0, 0],
+      "CANTEEN":    [45563605, 56413166, 63804196, 85743985, 111286846, 94842284, 91296625, 91048835, 63768301, 94047853, 0, 0],
+      "RESTAURANT": [3778797, 2159411, 2421786, 3247443, 2694199, 2710856, 3275969, 4082764, 3685595, 4397527, 0, 0],
+      "CAFÉ":       [17353477, 1857499, 2037271, 2613637, 1984243, 3029238, 1683932, 4014574, 1129182, 1310340, 0, 0],
+      "HOTEL":      [225997, 0, 0, 0, 0, 0, 0, 0, 0, 710123, 0, 0]
+    };
+
+    // Cấu trúc phân cấp 6 Bộ phận & 31 Ngành hàng chuẩn hóa của LOTTE MART B2B
+    const DIVISION_CATEGORY_SCHEMA = [
+      { division: "Fresh Food 1", label: "Fruits", key: "FRUITS" },
+      { division: "Fresh Food 1", label: "Vegetables", key: "VEGETABLES" },
+      { division: "Fresh Food 2", label: "Beef & Other", key: "BEEF & OTHER" },
+      { division: "Fresh Food 2", label: "Fishery", key: "FISHERY" },
+      { division: "Fresh Food 2", label: "Pork", key: "PORK" },
+      { division: "Fresh Food 2", label: "Poultry & Egg", key: "POULTRY & EGG" },
+      { division: "H&B", label: "Beauty", key: "BEAUTY" },
+      { division: "H&B", label: "Detergent", key: "DETERGENT" },
+      { division: "H&B", label: "Personal Care", key: "PERSONAL CARE" },
+      { division: "H&B", label: "Sanitary", key: "SANITARY" },
+      { division: "Home & Fashion", label: "Bedding", key: "BEDDING" },
+      { division: "Home & Fashion", label: "Cleaning & Bath", key: "CLEANING & BATH" },
+      { division: "Home & Fashion", label: "Footwear & Accessories", key: "FOOTWEAR & ACCESSORIES" },
+      { division: "Home & Fashion", label: "Home Appliance", key: "HOME APPLIANCE" },
+      { division: "Home & Fashion", label: "Home Decor & Hobby", key: "HOME DECOR & HOBBY" },
+      { division: "Home & Fashion", label: "Kid & Baby", key: "KID & BABY" },
+      { division: "Home & Fashion", label: "Kitchen & Dining", key: "KITCHEN & DINING" },
+      { division: "Home & Fashion", label: "Men", key: "MEN" },
+      { division: "Home & Fashion", label: "Toys & Stationery", key: "TOYS & STATIONERY" },
+      { division: "Home & Fashion", label: "Women", key: "WOMEN" },
+      { division: "Meal Solution", label: "Bakery", key: "BAKERY" },
+      { division: "Meal Solution", label: "Delica", key: "DELICA" },
+      { division: "Processed Food", label: "Alcohol", key: "ALCOHOL" },
+      { division: "Processed Food", label: "Beverage", key: "BEVERAGE" },
+      { division: "Processed Food", label: "Chilled Food", key: "CHILLED FOOD" },
+      { division: "Processed Food", label: "Coffee & Tea", key: "COFFEE & TEA" },
+      { division: "Processed Food", label: "Confectionery", key: "CONFECTIONERY" },
+      { division: "Processed Food", label: "Dairy", key: "DAIRY" },
+      { division: "Processed Food", label: "Frozen Food", key: "FROZEN FOOD" },
+      { division: "Processed Food", label: "Instant Food", key: "INSTANT FOOD" },
+      { division: "Processed Food", label: "Seasoning", key: "SEASONING" }
+    ];
+
+    let selectedDivisionFilter = "ALL";
+
+    // Trạng thái toàn cục
+    let allTransactions = [];
+    let filteredTransactions = [];
+   const OFFICIAL_TARGET_CUSTOMER_2026 = {
+      "AGENCY":     [15, 12, 27, 9, 28, 17, 15, 15, 32, 32, 0, 0],
+      "OFFICE":     [103, 67, 72, 80, 82, 86, 85, 92, 93, 92, 0, 0],
+      "HORECA":     [38, 12, 12, 20, 21, 20, 23, 28, 13, 26, 0, 0],
+      "CANTEEN":    [15, 5, 5, 12, 14, 12, 14, 17, 4, 7, 0, 0],
+      "RESTAURANT": [7, 5, 4, 5, 6, 5, 6, 7, 7, 9, 0, 0],
+      "CAFÉ":       [15, 2, 3, 3, 1, 3, 3, 4, 2, 4, 0, 0],
+      "HOTEL":      [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    };
+
+    let targetMatrix = JSON.parse(JSON.stringify(OFFICIAL_TARGET_2026));
+    let targetProfitMatrix = JSON.parse(JSON.stringify(OFFICIAL_TARGET_PROFIT_2026));
+    let targetCustomerMatrix = JSON.parse(JSON.stringify(OFFICIAL_TARGET_CUSTOMER_2026));
+    let lastYearData = null; // Chứa dữ liệu LY nhóm theo Tháng, Tuần, Ngành hàng
+    let timeGranularity = 'MONTH';
+    let revenueChartInstance = null;
+    let tableLimits = { customers: 5, products: 5, growth: 5 };
+
+    /*************************************************************************
+     * 3. HÀM CHUẨN HÓA SỐ LIỆU TIỀN TỆ TỪ EXCEL/GOOGLE SHEETS SANG VNĐ
+     *    Đọc trực tiếp số tiền VNĐ đã chuẩn hóa trên Google Sheets
+     *************************************************************************/
+    function parseVNDFromSheet(rawVal, unitPriceVND = 0, qty = 1) {
+      if (rawVal === null || rawVal === undefined || rawVal === "") return 0;
+
+      // 1. Nếu đã là kiểu số (Number), lấy trực tiếp giá trị VNĐ
+      if (typeof rawVal === "number") {
+        return Math.round(rawVal);
+      }
+
+      // 2. Nếu là chuỗi (Text), loại bỏ ký hiệu tiền tệ và dấu phân cách hàng nghìn
+      let str = String(rawVal).trim();
+      if (!str) return 0;
+
+      // Loại bỏ phần thập phân .00 hoặc ,00 ở cuối chuỗi (nếu có)
+      str = str.replace(/[.,]00(?=\D*$)/, "");
+
+      // Chỉ giữ lại các chữ số và dấu âm (-)
+      const cleanStr = str.replace(/[^\d-]/g, "");
+      const num = parseFloat(cleanStr);
+
+      return isNaN(num) ? 0 : Math.round(num);
+    }
+
+    function parseQuantity(rawVal) {
+      if (typeof rawVal === "number") return rawVal;
+      let str = String(rawVal || "0").trim().replace(",", ".");
+      return parseFloat(str) || 0;
+    }
+
+    function normalizeDate(rawDate) {
+      if (!rawDate) return "";
+      if (typeof rawDate === "number") {
+        // Excel serial date
+        const utcDays = Math.floor(rawDate - 25569);
+        const d = new Date(utcDays * 86400 * 1000);
+        return d.toISOString().slice(0, 10);
+      }
+      let s = String(rawDate).trim();
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+      if (/^\d{1,2}\/\d{1,2}\/\d{4}/.test(s)) {
+        const parts = s.split("/");
+        const d = parts[0].padStart(2, "0");
+        const m = parts[1].padStart(2, "0");
+        const y = parts[2].slice(0, 4);
+        return `${y}-${m}-${d}`;
+      }
+      return s.slice(0, 10);
+    }
+
+    function parseRawRowsToObjects(rows) {
+      const result = [];
+      for (let i = 0; i < rows.length; i++) {
+        const r = rows[i];
+        if (!r || r.length < 10) continue;
+        const dateStr = normalizeDate(r[0]);
+        if (!dateStr || dateStr === "Ngày mua hàng") continue;
+
+        const year = parseInt(dateStr.slice(0, 4), 10);
+        const month = parseInt(dateStr.slice(5, 7), 10);
+        const customerId = String(r[1] || "").trim();
+        const memberCard = String(r[2] || "").trim();
+        const segment = String(r[3] || "KHÁC").trim().toUpperCase();
+        const posNo = String(r[4] || "").trim();
+        const billNo = String(r[5] || "").trim();
+        const sku = String(r[6] || "").trim();
+        const productName = String(r[7] || "").trim();
+        const category = String(r[8] || "KHÁC").trim();
+
+        const qty = parseQuantity(r[10]);
+        const unitPriceVND = parseVNDFromSheet(r[9], 1000, 1);
+        const grossAmount = parseVNDFromSheet(r[11], unitPriceVND, qty);
+        const profit = parseVNDFromSheet(r[12], unitPriceVND, qty);
+        const netRevenue = parseVNDFromSheet(r[13], unitPriceVND, qty);
+
+        result.push({
+          date: dateStr,
+          year,
+          month,
+          customerId,
+          memberCard,
+          segment,
+          posNo,
+          billNo,
+          uniqueBillKey: `${dateStr}_${posNo}_${billNo}`,
+          sku,
+          productName,
+          category,
+          unitPrice: unitPriceVND,
+          qty,
+          grossAmount,
+          profit,
+          netRevenue
+        });
+      }
+      return result;
+    }
+
+    /*************************************************************************
+     * 4. KHỞI TẠO BỘ LỌC ĐỘNG & ÁP DỤNG LỌC ĐỒNG BỘ
+     *************************************************************************/
+    function populateFilterDropdowns() {
+      const custSelect = document.getElementById("filterCustomer");
+      const segSelect = document.getElementById("filterSegment");
+      const catSelect = document.getElementById("filterCategory");
+
+      const currentCust = custSelect.value;
+      const currentSeg = segSelect.value;
+      const currentCat = catSelect.value;
+
+      const customers = Array.from(new Set(allTransactions.map(t => t.customerId))).filter(Boolean).sort();
+      const segments = Array.from(new Set(allTransactions.map(t => t.segment))).filter(Boolean).sort();
+      const categories = Array.from(new Set([
+        ...Object.keys(targetMatrix),
+        ...allTransactions.map(t => t.category)
+      ])).filter(Boolean).sort();
+
+      custSelect.innerHTML = `<option value="ALL">Tất cả (${customers.length})</option>` +
+        customers.map(c => `<option value="${c}">${c}</option>`).join("");
+
+      segSelect.innerHTML = `<option value="ALL">Tất cả (${segments.length})</option>` +
+        segments.map(s => `<option value="${s}">${s}</option>`).join("");
+
+      catSelect.innerHTML = `<option value="ALL">Tất cả (${categories.length})</option>` +
+        categories.map(c => `<option value="${c}">${c}</option>`).join("");
+
+      if (customers.includes(currentCust)) custSelect.value = currentCust;
+      if (segments.includes(currentSeg)) segSelect.value = currentSeg;
+      if (categories.includes(currentCat)) catSelect.value = currentCat;
+    }
+
+    function getTargetForScope(monthFilter, categoryFilter, startDateStr, endDateStr) {
+      // Xác định các tháng nằm trong phạm vi lọc
+      let activeMonths = [1,2,3,4,5,6,7,8,9,10,11,12];
+      if (monthFilter !== "ALL") {
+        activeMonths = [parseInt(monthFilter, 10)];
+      } else if (startDateStr && endDateStr) {
+        const mStart = parseInt(startDateStr.slice(5, 7), 10) || 1;
+        const mEnd = parseInt(endDateStr.slice(5, 7), 10) || 12;
+        activeMonths = activeMonths.filter(m => m >= mStart && m <= mEnd);
+      }
+
+      let totalTarget = 0;
+      const cats = categoryFilter === "ALL" ? Object.keys(targetMatrix) : [categoryFilter];
+
+     cats.forEach(cat => {
+        const monthlyArr = targetMatrix[cat];
+        if (!monthlyArr) return;
+        activeMonths.forEach(m => {
+          totalTarget += (monthlyArr[m - 1] || 0);
+        });
+      });
+
+      return totalTarget;
+    }
+
+    function getProfitTargetForScope(monthFilter, segmentFilter, startDateStr, endDateStr) {
+      let activeMonths = [1,2,3,4,5,6,7,8,9,10,11,12];
+      if (monthFilter !== "ALL") {
+        activeMonths = [parseInt(monthFilter, 10)];
+      } else if (startDateStr && endDateStr) {
+        const mStart = parseInt(startDateStr.slice(5, 7), 10) || 1;
+        const mEnd = parseInt(endDateStr.slice(5, 7), 10) || 12;
+        activeMonths = activeMonths.filter(m => m >= mStart && m <= mEnd);
+      }
+
+      let totalProfitTarget = 0;
+      const segs = segmentFilter === "ALL" ? Object.keys(targetProfitMatrix) : [segmentFilter.toUpperCase()];
+
+      segs.forEach(seg => {
+        const monthlyArr = targetProfitMatrix[seg];
+        if (!monthlyArr) return;
+        activeMonths.forEach(m => {
+          totalProfitTarget += (monthlyArr[m - 1] || 0);
+        });
+      });
+
+      return totalProfitTarget;
+    }
+/*************************************************************************
+     * TỐI ƯU UX: TỰ ĐỘNG CHỌN THÁNG CÓ DỮ LIỆU GẦN NHẤT KHI KHỞI ĐỘNG
+     *************************************************************************/
+    function setDefaultMonthToLatest() {
+      if (!allTransactions || allTransactions.length === 0) return;
+
+      // 1. Quét tìm ngày giao dịch mới nhất trong toàn bộ data
+      let latestDate = allTransactions[0].date;
+      for (let i = 1; i < allTransactions.length; i++) {
+        if (allTransactions[i].date > latestDate) {
+          latestDate = allTransactions[i].date;
+        }
+      }
+
+      if (latestDate) {
+        const maxYear = parseInt(latestDate.slice(0, 4), 10);
+        const maxMonth = parseInt(latestDate.slice(5, 7), 10);
+        
+        // 2. Cập nhật Date Pickers (Từ ngày 1 đến ngày cuối cùng của tháng đó)
+        const lastDay = new Date(maxYear, maxMonth, 0).getDate();
+        const startStr = `${maxYear}-${String(maxMonth).padStart(2, '0')}-01`;
+        const endStr = `${maxYear}-${String(maxMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+        
+        document.getElementById("startDate").value = startStr;
+        document.getElementById("endDate").value = endStr;
+
+        // 3. Cập nhật Dropdown Tháng tương ứng trong Popover
+        const monthSelect = document.getElementById("filterMonth");
+        if (monthSelect) {
+          monthSelect.value = maxMonth.toString();
+        }
+      }
+    }
+    function applyAllFilters() {
+      const startDateEl = document.getElementById("startDate");
+      const endDateEl = document.getElementById("endDate");
+      const monthSelectEl = document.getElementById("filterMonth");
+
+      // Xác định thành phần giao diện nào vừa được người dùng thay đổi
+      const triggerId = (typeof event !== "undefined" && event && event.target) ? event.target.id : "";
+
+      // 1. Nếu người dùng chọn Tháng -> Tự động nhảy từ ngày 1 đến ngày cuối của tháng đó
+      if (triggerId === "filterMonth") {
+        const selectedMonth = monthSelectEl.value;
+        const currentYear = parseInt((startDateEl.value || "2026").slice(0, 4), 10) || 2026;
+
+        if (selectedMonth === "ALL") {
+          startDateEl.value = `${currentYear}-01-01`;
+          endDateEl.value = `${currentYear}-12-31`;
+        } else {
+          const m = parseInt(selectedMonth, 10);
+          const lastDay = new Date(currentYear, m, 0).getDate(); // Tự động lấy 28, 29, 30 hoặc 31
+          const monthPad = String(m).padStart(2, "0");
+          startDateEl.value = `${currentYear}-${monthPad}-01`;
+          endDateEl.value = `${currentYear}-${monthPad}-${String(lastDay).padStart(2, "0")}`;
+        }
+      }
+      // 2. Nếu người dùng chỉnh tay ô Ngày bắt đầu / Ngày kết thúc -> Đồng bộ lại ô Tháng
+      else if (triggerId === "startDate" || triggerId === "endDate") {
+        if (startDateEl.value && endDateEl.value) {
+          const sMonth = parseInt(startDateEl.value.slice(5, 7), 10);
+          const eMonth = parseInt(endDateEl.value.slice(5, 7), 10);
+          monthSelectEl.value = (sMonth === eMonth) ? String(sMonth) : "ALL";
+        }
+      }
+
+      const startDate = startDateEl.value;
+      const endDate = endDateEl.value;
+      const monthFilter = monthSelectEl.value;
+      const customerFilter = document.getElementById("filterCustomer").value;
+      const segmentFilter = document.getElementById("filterSegment").value;
+      const categoryFilter = document.getElementById("filterCategory").value;
+      const searchStr = document.getElementById("filterSearch").value.trim().toLowerCase();
+
+      filteredTransactions = allTransactions.filter(t => {
+        if (startDate && t.date < startDate) return false;
+        if (endDate && t.date > endDate) return false;
+        if (monthFilter !== "ALL" && t.month !== parseInt(monthFilter, 10)) return false;
+        if (customerFilter !== "ALL" && t.customerId !== customerFilter) return false;
+        if (segmentFilter !== "ALL" && t.segment !== segmentFilter) return false;
+        if (categoryFilter !== "ALL" && t.category !== categoryFilter) return false;
+        if (searchStr) {
+          const matchSku = t.sku.toLowerCase().includes(searchStr);
+          const matchName = t.productName.toLowerCase().includes(searchStr);
+          const matchCust = t.customerId.toLowerCase().includes(searchStr);
+          if (!matchSku && !matchName && !matchCust) return false;
+        }
+        return true;
+      });
+
+      renderKPIs(monthFilter, categoryFilter, customerFilter, segmentFilter, startDate, endDate);
+      renderTimeChart(categoryFilter);
+      renderCategoryStructure();
+    renderTopCustomersTable();
+     renderTopProductsTable();
+      renderGrowthTable(monthFilter);
+      renderDepartmentCategoryTable(); // Cập nhật bảng 6 Bộ phận & 31 Ngành hàng đồng bộ theo bộ lọc
+      renderProfitSegmentChart(); // Render biểu đồ lợi nhuận theo Tệp KH
+      renderProfitSegmentTable(); // Render bảng chi tiết lợi nhuận theo Tệp KH
+      renderCustomerSegmentChart(); // Render biểu đồ số lượng KH theo Tệp
+      renderCustomerSegmentTable(); // Render bảng chi tiết khách mua theo Tệp KH
+      calculateChurnCustomers(); // Tính toán khách hàng lâu chưa mua mỗi khi đổi kỳ báo cáo
+    }
+
+    function resetFilters() {
+      document.getElementById("startDate").value = "2026-01-01";
+      document.getElementById("endDate").value = "2026-12-31";
+      document.getElementById("filterMonth").value = "ALL";
+      document.getElementById("filterCustomer").value = "ALL";
+      document.getElementById("filterSegment").value = "ALL";
+      document.getElementById("filterCategory").value = "ALL";
+      document.getElementById("filterSearch").value = "";
+      applyAllFilters();
+    }
+
+    /*************************************************************************
+     * 5. HIỂN THỊ 4 CARD KPI & KIỂM TRA LOGIC NGHIỆP VỤ
+     *************************************************************************/
+    function formatVND(val) {
+      return Math.round(val).toLocaleString("vi-VN");
+    }
+
+function formatShortVND(val) {
+      if (val >= 1e9) return (val / 1e9).toFixed(2) + " tỷ";
+      if (val >= 1e6) return (val / 1e6).toFixed(2) + " triệu";
+      return formatVND(val) + " đ";
+    }
+
+    function renderKPIs(monthFilter, categoryFilter, customerFilter, segmentFilter, startDate, endDate) {
+      const totalNetRev = filteredTransactions.reduce((sum, t) => sum + t.netRevenue, 0);
+      const totalProfit = filteredTransactions.reduce((sum, t) => sum + t.profit, 0);
+      const uniqueCustomers = new Set(filteredTransactions.map(t => t.customerId)).size;
+      const uniqueBills = new Set(filteredTransactions.map(t => t.uniqueBillKey)).size;
+      const avgOrderValue = uniqueBills > 0 ? totalNetRev / uniqueBills : 0;
+
+      // --- XÁC ĐỊNH THÁNG HIỆN TẠI ĐỂ SO SÁNH ---
+      let curM = 1;
+      if (monthFilter !== "ALL") {
+        curM = parseInt(monthFilter, 10);
+      } else {
+        const monthsAvailable = Array.from(new Set(allTransactions.map(t => t.month))).sort((a, b) => a - b);
+        curM = monthsAvailable.length > 0 ? monthsAvailable[monthsAvailable.length - 1] : 1;
+      }
+
+      // Doanh thu chỉ riêng của tháng hiện tại (curM) dựa trên bộ lọc
+      const currentMonthRev = allTransactions
+        .filter(t => t.month === curM && 
+                     (categoryFilter === "ALL" || t.category === categoryFilter) &&
+                     (customerFilter === "ALL" || t.customerId === customerFilter) &&
+                     (segmentFilter === "ALL" || t.segment === segmentFilter))
+        .reduce((s, t) => s + t.netRevenue, 0);
+
+      // ==========================================
+      // 1. DOANH THU THUẦN & CÁC CHỈ SỐ CON
+      // ==========================================
+      document.getElementById("kpiNetRevenue").innerHTML = `${formatVND(totalNetRev)} <span class="currency">đ</span>`;
+
+      // A. Mục tiêu (Target)
+      const targetMonth = getTargetForScope(curM.toString(), categoryFilter, null, null);
+      const targetYear = getTargetForScope("ALL", categoryFilter, "2026-01-01", "2026-12-31");
+      
+      const pctMonth = targetMonth > 0 ? (currentMonthRev / targetMonth) * 100 : 0;
+      const pctYear = targetYear > 0 ? (totalNetRev / targetYear) * 100 : 0;
+      
+      document.getElementById("kpiTargetMonth").textContent = `${pctMonth.toFixed(1)}%`;
+      document.getElementById("kpiTargetYear").textContent = `${pctYear.toFixed(1)}%`;
+
+      // B. Tăng trưởng Tháng (MoM)
+      let prevM = curM - 1;
+      let prevRev = 0;
+      if (prevM >= 1) {
+        prevRev = allTransactions
+          .filter(t => t.month === prevM && 
+                       (categoryFilter === "ALL" || t.category === categoryFilter) &&
+                       (customerFilter === "ALL" || t.customerId === customerFilter) &&
+                       (segmentFilter === "ALL" || t.segment === segmentFilter))
+          .reduce((s, t) => s + t.netRevenue, 0);
+      }
+      const momPct = prevRev > 0 ? ((currentMonthRev - prevRev) / prevRev) * 100 : 0;
+      const momEl = document.getElementById("kpiGrowthMoM");
+      if (prevRev > 0) {
+        momEl.textContent = `${momPct >= 0 ? '+' : ''}${momPct.toFixed(1)}%`;
+        momEl.className = `badge-trend ${momPct >= 0 ? 'up' : 'down'}`;
+      } else {
+        momEl.textContent = "N/A";
+        momEl.className = "badge-trend neutral";
+      }
+
+      // C. Tăng trưởng Năm (YoY - Dựa trên Data tổng của Sheet Năm ngoái)
+      let lyRev = 0;
+      if (lastYearData && lastYearData.byMonth) {
+        if (monthFilter !== "ALL") {
+           lyRev = lastYearData.byMonth[curM - 1] || 0; 
+        } else {
+           lyRev = lastYearData.byMonth.reduce((a,b)=>a+b, 0);
+        }
+      }
+      const yoyPct = lyRev > 0 ? ((totalNetRev - lyRev) / lyRev) * 100 : 0;
+      const yoyEl = document.getElementById("kpiGrowthYoY");
+      if (lyRev > 0) {
+        yoyEl.textContent = `${yoyPct >= 0 ? '+' : ''}${yoyPct.toFixed(1)}%`;
+        yoyEl.className = `badge-trend ${yoyPct >= 0 ? 'up' : 'down'}`;
+      } else {
+        yoyEl.textContent = "N/A";
+        yoyEl.className = "badge-trend neutral";
+      }
+
+      // ==========================================
+      // 2. LỢI NHUẬN & TARGET PROFIT
+      // ==========================================
+      document.getElementById("kpiProfit").innerHTML = `${formatVND(totalProfit)} <span class="currency">đ</span>`;
+      const marginPct = totalNetRev > 0 ? (totalProfit / totalNetRev) * 100 : 0;
+      document.getElementById("kpiProfitSub").textContent = `Biên LN: ${marginPct.toFixed(1)}%`;
+
+      // Lợi nhuận thực tế của riêng tháng hiện tại (curM) theo bộ lọc
+      const currentMonthProfit = allTransactions
+        .filter(t => t.month === curM &&
+                     (categoryFilter === "ALL" || t.category === categoryFilter) &&
+                     (customerFilter === "ALL" || t.customerId === customerFilter) &&
+                     (segmentFilter === "ALL" || t.segment === segmentFilter))
+        .reduce((s, t) => s + t.profit, 0);
+
+      // A. Mục tiêu Lợi nhuận (Target Profit theo Tệp KH)
+      const profitTargetMonth = getProfitTargetForScope(curM.toString(), segmentFilter, null, null);
+      const profitTargetYear = getProfitTargetForScope("ALL", segmentFilter, "2026-01-01", "2026-12-31");
+
+      const pctProfitMonth = profitTargetMonth > 0 ? (currentMonthProfit / profitTargetMonth) * 100 : 0;
+      const pctProfitYear = profitTargetYear > 0 ? (totalProfit / profitTargetYear) * 100 : 0;
+
+      document.getElementById("kpiProfitTargetMonth").textContent = `${pctProfitMonth.toFixed(1)}%`;
+      document.getElementById("kpiProfitTargetYear").textContent = `${pctProfitYear.toFixed(1)}%`;
+
+      // B. Tăng trưởng Lợi nhuận Tháng (MoM)
+      let prevProfit = 0;
+      if (prevM >= 1) {
+        prevProfit = allTransactions
+          .filter(t => t.month === prevM &&
+                       (categoryFilter === "ALL" || t.category === categoryFilter) &&
+                       (customerFilter === "ALL" || t.customerId === customerFilter) &&
+                       (segmentFilter === "ALL" || t.segment === segmentFilter))
+          .reduce((s, t) => s + t.profit, 0);
+      }
+      const profitMomEl = document.getElementById("kpiProfitGrowthMoM");
+      if (prevProfit > 0) {
+        const profitMomPct = ((currentMonthProfit - prevProfit) / prevProfit) * 100;
+        profitMomEl.textContent = `${profitMomPct >= 0 ? '+' : ''}${profitMomPct.toFixed(1)}%`;
+        profitMomEl.className = `badge-trend ${profitMomPct >= 0 ? 'up' : 'down'}`;
+      } else {
+        profitMomEl.textContent = "N/A";
+        profitMomEl.className = "badge-trend neutral";
+      }
+
+      // C. Tăng trưởng Lợi nhuận Năm (YoY)
+      let lyProfit = 0;
+      if (lastYearData && lastYearData.byProfitMonth) {
+        if (monthFilter !== "ALL") {
+          lyProfit = lastYearData.byProfitMonth[curM - 1] || 0;
+        } else {
+          lyProfit = lastYearData.byProfitMonth.reduce((a, b) => a + b, 0);
+        }
+      }
+      const profitYoyEl = document.getElementById("kpiProfitGrowthYoY");
+      if (lyProfit > 0) {
+        const profitYoyPct = ((totalProfit - lyProfit) / lyProfit) * 100;
+        profitYoyEl.textContent = `${profitYoyPct >= 0 ? '+' : ''}${profitYoyPct.toFixed(1)}%`;
+        profitYoyEl.className = `badge-trend ${profitYoyPct >= 0 ? 'up' : 'down'}`;
+      } else {
+        profitYoyEl.textContent = "N/A";
+        profitYoyEl.className = "badge-trend neutral";
+      }
+
+      // ==========================================
+      // 3. TỆP KHÁCH HÀNG
+      // ==========================================
+      document.getElementById("kpiCustomers").textContent = uniqueCustomers.toLocaleString("vi-VN");
+      document.getElementById("kpiCustomersSub").textContent =
+        `Số bill: ${uniqueBills.toLocaleString("vi-VN")} | ĐH TB: ${formatShortVND(avgOrderValue)}`;
+
+      // 4. THẺ QUÀ TẶNG (UI đã xử lý trống sẵn)
+
+      // Cập nhật Audit Log
+      document.getElementById("auditSummaryText").innerHTML =
+        `• <strong>Số dòng giao dịch:</strong> ${filteredTransactions.length.toLocaleString("vi-VN")} dòng | ` +
+        `<strong>Doanh thu (Kỳ lọc):</strong> ${formatVND(totalNetRev)} đ | ` +
+        `<strong>Target Năm:</strong> ${formatVND(targetYear)} đ.`;
+    }
+
+    /*************************************************************************
+     * 6. BIỂU ĐỒ DOANH THU THEO THỜI GIAN (THỰC TẾ vs TARGET)
+     *************************************************************************/
+    function setTimeGranularity(mode) {
+      timeGranularity = mode;
+      document.getElementById("btnViewDay").classList.toggle("active", mode === "DAY");
+      document.getElementById("btnViewWeek").classList.toggle("active", mode === "WEEK");
+      document.getElementById("btnViewMonth").classList.toggle("active", mode === "MONTH");
+      document.getElementById("btnViewYear").classList.toggle("active", mode === "YEAR");
+      applyAllFilters();
+    }
+
+function renderTimeChart(categoryFilter) {
+      const ctx = document.getElementById("revenueTimeChart").getContext("2d");
+      if (revenueChartInstance) {
+        revenueChartInstance.destroy();
+      }
+
+      let labels = [];
+      let actualSeries = [];
+      let targetSeries = [];
+
+      if (timeGranularity === "MONTH") {
+        labels = ["T1","T2","T3","T4","T5","T6","T7","T8","T9","T10","T11","T12"];
+        const revByMonth = new Array(12).fill(0);
+
+        // Lấy bộ lọc Khách hàng, Tệp KH, Ngành hàng, Tìm kiếm để hiển thị đúng dữ liệu
+        const customerFilter = document.getElementById("filterCustomer").value;
+        const segmentFilter = document.getElementById("filterSegment").value;
+        const searchStr = document.getElementById("filterSearch").value.trim().toLowerCase();
+
+        allTransactions.forEach(t => {
+          if (customerFilter !== "ALL" && t.customerId !== customerFilter) return;
+          if (segmentFilter !== "ALL" && t.segment !== segmentFilter) return;
+          if (categoryFilter !== "ALL" && t.category !== categoryFilter) return;
+          if (searchStr) {
+            const matchSku = t.sku.toLowerCase().includes(searchStr);
+            const matchName = t.productName.toLowerCase().includes(searchStr);
+            const matchCust = t.customerId.toLowerCase().includes(searchStr);
+            if (!matchSku && !matchName && !matchCust) return;
+          }
+          if (t.month >= 1 && t.month <= 12) {
+            revByMonth[t.month - 1] += t.netRevenue;
+          }
+        });
+
+        const tgtByMonth = new Array(12).fill(0);
+        const cats = categoryFilter === "ALL" ? Object.keys(targetMatrix) : [categoryFilter];
+        cats.forEach(cat => {
+          const arr = targetMatrix[cat];
+          if (!arr) return;
+          for (let m = 0; m < 12; m++) {
+            tgtByMonth[m] += (arr[m] || 0);
+          }
+        });
+
+        actualSeries = revByMonth.map(v => +(v / 1e6).toFixed(2));
+        targetSeries = tgtByMonth.map(v => +(v / 1e6).toFixed(2));
+      } else if (timeGranularity === "WEEK") {
+        const weekMap = {};
+        const getISOWeekLabel = (dStr) => {
+          const d = new Date(dStr);
+          d.setHours(0, 0, 0, 0);
+          d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+          const week1 = new Date(d.getFullYear(), 0, 4);
+          const weekNum = 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+          return `Tuần ${String(weekNum).padStart(2, '0')}`;
+        };
+
+        filteredTransactions.forEach(t => {
+          const wkStr = getISOWeekLabel(t.date);
+          weekMap[wkStr] = (weekMap[wkStr] || 0) + t.netRevenue;
+        });
+        
+        labels = Object.keys(weekMap).sort();
+        actualSeries = labels.map(wk => +(weekMap[wk] / 1e6).toFixed(2));
+        targetSeries = labels.map(() => null);
+      } else if (timeGranularity === "DAY") {
+        const dayMap = {};
+        filteredTransactions.forEach(t => {
+          dayMap[t.date] = (dayMap[t.date] || 0) + t.netRevenue;
+        });
+        labels = Object.keys(dayMap).sort();
+        actualSeries = labels.map(d => +(dayMap[d] / 1e6).toFixed(2));
+        targetSeries = labels.map(() => null);
+      } else {
+        labels = ["Năm 2026"];
+        const totalActual = filteredTransactions.reduce((s, t) => s + t.netRevenue, 0);
+        const totalTarget = getTargetForScope("ALL", categoryFilter, "2026-01-01", "2026-12-31");
+        actualSeries = [+(totalActual / 1e6).toFixed(2)];
+        targetSeries = [+(totalTarget / 1e6).toFixed(2)];
+      }
+
+      const datasets = [
+        {
+          label: "Thực tế (Triệu đ)",
+          data: actualSeries,
+          backgroundColor: "#344E41",
+          borderRadius: 6,
+          barPercentage: 0.65,
+          categoryPercentage: 0.72
+        },
+        {
+          label: "Target (Triệu đ)",
+          data: targetSeries,
+          backgroundColor: "#8FA596",
+          borderRadius: 6,
+          barPercentage: 0.65,
+          categoryPercentage: 0.72
+        }
+      ];
+
+      // Vẽ đường Line Năm ngoái với dữ liệu chuẩn dương
+      if (lastYearData && (timeGranularity === "MONTH" || timeGranularity === "WEEK")) {
+        let lySeriesData = [];
+        if (timeGranularity === "MONTH") {
+           lySeriesData = lastYearData.byMonth.map(v => +(Math.abs(v) / 1e6).toFixed(2));
+        } else if (timeGranularity === "WEEK") {
+           lySeriesData = labels.map(wk => {
+              const val = lastYearData.byWeek[wk] || 0;
+              return val > 0 ? +(val / 1e6).toFixed(2) : null;
+           });
+        }
+
+        datasets.push({
+          type: "line",
+          label: "Năm ngoái (Triệu đ)",
+          data: lySeriesData,
+          borderColor: "#C6A75E",
+          backgroundColor: "#C6A75E",
+          borderWidth: 2,
+          tension: 0.35,
+          pointRadius: 4
+        });
+      }
+
+      revenueChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: {
+              position: "top",
+              align: "end",
+              labels: {
+                usePointStyle: true,
+                pointStyle: "circle",
+                color: "#2F2F2F",
+                font: { size: 12, weight: "600" }
+              }
+            },
+            tooltip: {
+              backgroundColor: "#FFFFFF",
+              titleColor: "#2F2F2F",
+              bodyColor: "#2F2F2F",
+              borderColor: "#E2E8F0",
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                label: function(context) {
+                  const val = context.parsed.y;
+                  if (val === null || val === undefined) return "";
+                  return ` ${context.dataset.label}: ${val.toLocaleString("vi-VN")} triệu`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: "#64748B", font: { size: 12 } }
+            },
+            y: {
+              beginAtZero: true, // Ép trục Y bắt đầu từ số 0, tuyệt đối không cho xuống âm
+              grid: { color: "#F1F5F9" },
+              ticks: {
+                color: "#64748B",
+                font: { size: 12 },
+                callback: v => v.toLocaleString("vi-VN")
+              }
+            }
+          }
+        }
+      });
+    }
+
+    /*************************************************************************
+     * 7. BIỂU ĐỒ CƠ CẤU DOANH THU THEO NGÀNH HÀNG
+     *************************************************************************/
+    function renderCategoryStructure() {
+      const container = document.getElementById("categoryBarsContainer");
+      const limit = parseInt(document.getElementById("catLimitSelect").value, 10) || 10;
+
+      const totalRev = filteredTransactions.reduce((s, t) => s + t.netRevenue, 0);
+      const catMap = {};
+      filteredTransactions.forEach(t => {
+        catMap[t.category] = (catMap[t.category] || 0) + t.netRevenue;
+      });
+
+      const sortedCats = Object.entries(catMap)
+        .map(([name, rev]) => ({
+          name,
+          rev,
+          share: totalRev > 0 ? (rev / totalRev) * 100 : 0
+        }))
+        .sort((a, b) => b.rev - a.rev)
+        .slice(0, limit);
+
+      if (sortedCats.length === 0) {
+        container.innerHTML = `<div style="color:var(--text-sub);font-size:13px;padding:20px 0;">Chưa có dữ liệu phù hợp bộ lọc.</div>`;
+        return;
+      }
+
+      const maxRev = sortedCats[0].rev || 1;
+
+      container.innerHTML = sortedCats.map((item, idx) => {
+        const widthPct = Math.max((item.rev / maxRev) * 100, 3);
+        let barColor = "#8FA596";
+        if (idx === 0) barColor = "#344E41";
+        else if (idx === 4) barColor = "#C6A75E";
+        else if (idx >= 5) barColor = "#CBD5E1";
+
+        const revInMillions = (item.rev / 1e6).toFixed(2);
+        return `
+          <div class="cat-bar-row">
+            <div class="cat-name" title="${item.name}">${item.name}</div>
+            <div class="cat-track">
+              <div class="cat-fill" style="width:${widthPct}%;background-color:${barColor};"></div>
+            </div>
+            <div class="cat-val">${revInMillions} tr</div>
+            <div class="cat-share">${item.share.toFixed(1)}%</div>
+          </div>
+        `;
+      }).join("");
+    }
+/*************************************************************************
+     * BIỂU ĐỒ PHÂN TÍCH LỢI NHUẬN THEO TỆP KHÁCH HÀNG
+     *************************************************************************/
+    let profitSegmentChartInstance = null;
+
+    function renderProfitSegmentChart() {
+      const ctx = document.getElementById("profitSegmentChart").getContext("2d");
+      if (profitSegmentChartInstance) {
+        profitSegmentChartInstance.destroy();
+      }
+
+      const monthFilter = document.getElementById("filterMonth").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const segmentFilter = document.getElementById("filterSegment").value;
+
+      // Danh sách các tệp KH (Lấy chuẩn từ targetProfitMatrix)
+      const allSegments = Object.keys(targetProfitMatrix);
+      let labels = segmentFilter === "ALL" ? allSegments : [segmentFilter.toUpperCase()];
+
+      let actualData = [];
+      let targetData = [];
+
+      labels.forEach(seg => {
+        // 1. Tính Lợi nhuận thực tế cho tệp KH này dựa trên dữ liệu đã lọc
+        const actualProfit = filteredTransactions
+          .filter(t => String(t.segment).trim().toUpperCase() === seg)
+          .reduce((sum, t) => sum + t.profit, 0);
+        actualData.push(+(actualProfit / 1e6).toFixed(2));
+
+        // 2. Tính Target Lợi nhuận cho tệp KH này theo kỳ lọc
+        const targetProfit = getProfitTargetForScope(monthFilter, seg, startDate, endDate);
+        targetData.push(+(targetProfit / 1e6).toFixed(2));
+      });
+
+      profitSegmentChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Lợi nhuận thực tế",
+              data: actualData,
+              backgroundColor: "#344E41", // Moss Green
+              borderRadius: 6,
+              barPercentage: 0.65,
+              categoryPercentage: 0.72
+            },
+            {
+              label: "Target lợi nhuận",
+              data: targetData,
+              backgroundColor: "#8FA596", // Sage Green
+              borderRadius: 6,
+              barPercentage: 0.65,
+              categoryPercentage: 0.72
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: {
+              position: "top",
+              align: "end",
+              labels: { usePointStyle: true, pointStyle: "circle", color: "#2F2F2F", font: { size: 12, weight: "600" } }
+            },
+            tooltip: {
+              backgroundColor: "#FFFFFF", titleColor: "#2F2F2F", bodyColor: "#2F2F2F", borderColor: "#E2E8F0", borderWidth: 1, padding: 12,
+              callbacks: {
+                label: function(context) { 
+                  return ` ${context.dataset.label}: ${context.parsed.y.toLocaleString("vi-VN")} triệu`; 
+                }
+              }
+            }
+          },
+          scales: {
+            x: { 
+              grid: { display: false }, 
+              ticks: { color: "#64748B", font: { size: 12, weight: "600" } } 
+            },
+            y: { 
+              beginAtZero: true, 
+              grid: { color: "#F1F5F9" }, 
+              ticks: { color: "#64748B", font: { size: 12 }, callback: v => v.toLocaleString("vi-VN") } 
+            }
+          }
+        }
+      });
+      
+      // Đồng bộ kích thước khi tab thay đổi
+      if (document.getElementById("tabSalesView").classList.contains("active")) {
+          profitSegmentChartInstance.resize();
+      }
+    }
+    /*************************************************************************
+     * HÀM BỔ TRỢ: LẤY DỮ LIỆU NĂM NGOÁI THEO TỆP KHÁCH HÀNG
+     *************************************************************************/
+    function getLYDataBySegmentScope(type, segUpper, monthFilter, startDateStr, endDateStr) {
+      if (!lastYearData) return null;
+      const dataSource = type === 'PROFIT' ? lastYearData.bySegmentMonth_Profit : lastYearData.bySegmentMonth_Customer;
+      if (!dataSource || !dataSource[segUpper]) return null;
+
+      const arr = dataSource[segUpper];
+      let activeMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      
+      if (monthFilter !== "ALL") {
+        activeMonths = [parseInt(monthFilter, 10)];
+      } else if (startDateStr && endDateStr) {
+        const mStart = parseInt(startDateStr.slice(5, 7), 10) || 1;
+        const mEnd = parseInt(endDateStr.slice(5, 7), 10) || 12;
+        activeMonths = activeMonths.filter(m => m >= mStart && m <= mEnd);
+      }
+
+      return activeMonths.reduce((sum, m) => sum + (arr[m - 1] || 0), 0);
+    }
+
+    // Hàm định dạng UI Tăng trưởng Apple Style
+    const formatSegmentYoYCell = (actual, lyVal) => {
+      if (lyVal === null || lyVal === undefined) return `<span class="badge-trend neutral">Chưa có dữ liệu</span>`;
+      if (lyVal === 0 && actual > 0) return `<span class="badge-trend up">↗ +100%</span>`;
+      if (lyVal === 0) return `<span class="badge-trend neutral">—</span>`;
+      const yoy = ((actual - lyVal) / lyVal) * 100;
+      const isUp = yoy >= 0;
+      return `<span class="badge-trend ${isUp ? 'up' : 'down'}">${isUp ? '↗ +' : '↘ '}${yoy.toFixed(1)}%</span>`;
+    };
+
+    /*************************************************************************
+     * BẢNG CHI TIẾT LỢI NHUẬN THEO TỆP KHÁCH HÀNG
+     *************************************************************************/
+    function renderProfitSegmentTable() {
+      const tbody = document.getElementById("profitSegmentTableBody");
+      const tfoot = document.getElementById("profitSegmentTableFoot");
+      if (!tbody || !tfoot) return;
+
+      const monthFilter = document.getElementById("filterMonth").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const segmentFilter = document.getElementById("filterSegment").value;
+
+      let totalAllFilteredProfit = 0;
+      filteredTransactions.forEach(t => { totalAllFilteredProfit += t.profit; });
+
+      const allSegments = segmentFilter === "ALL" ? Object.keys(targetProfitMatrix) : [segmentFilter.toUpperCase()];
+
+      let grandActual = 0, grandTarget = 0, grandLY = 0;
+      let htmlRows = "";
+
+      const formatCompletionCell = (actual, target) => {
+        if (target <= 0) return `<span style="color:var(--text-sub);">—</span>`;
+        const pct = (actual / target) * 100;
+        const barW = Math.min(Math.max(pct, 0), 100);
+        const barColor = pct >= 100 ? "var(--positive)" : (pct >= 70 ? "var(--moss-green)" : "var(--metallic-gold)");
+        return `<div class="target-inline-wrap"><span style="font-weight:600; color:${pct >= 100 ? 'var(--positive)' : 'var(--text-main)'};">${pct.toFixed(1)}%</span><div class="target-mini-track"><div class="target-mini-fill" style="width:${barW}%; background-color:${barColor};"></div></div></div>`;
+      };
+
+      allSegments.forEach(seg => {
+        const actualProfit = filteredTransactions.filter(t => String(t.segment).trim().toUpperCase() === seg).reduce((sum, t) => sum + t.profit, 0);
+        const targetProfit = getProfitTargetForScope(monthFilter, seg, startDate, endDate);
+        const lyProfit = getLYDataBySegmentScope('PROFIT', seg, monthFilter, startDate, endDate);
+
+        grandActual += actualProfit;
+        grandTarget += targetProfit;
+        if (lyProfit !== null) grandLY += lyProfit;
+
+        const sharePct = totalAllFilteredProfit > 0 ? (actualProfit / totalAllFilteredProfit) * 100 : 0;
+
+        htmlRows += `
+          <tr>
+            <td style="font-weight:600;">${seg}</td>
+            <td class="num" style="font-weight:700;">${formatVND(actualProfit)} đ</td>
+            <td class="num" style="color:var(--text-sub);">${sharePct.toFixed(2)}%</td>
+            <td class="num">${formatVND(targetProfit)} đ</td>
+            <td class="num">${formatCompletionCell(actualProfit, targetProfit)}</td>
+            <td class="num" style="color:var(--text-sub);">${lyProfit !== null ? formatVND(lyProfit) + ' đ' : '—'}</td>
+            <td class="num">${formatSegmentYoYCell(actualProfit, lyProfit)}</td>
+          </tr>`;
+      });
+
+      tbody.innerHTML = htmlRows;
+      const grandShare = totalAllFilteredProfit > 0 ? (grandActual / totalAllFilteredProfit) * 100 : 0;
+      tfoot.innerHTML = `
+        <tr class="row-grand-total">
+          <td>TỔNG CỘNG (${allSegments.length} TỆP KH)</td>
+          <td class="num">${formatVND(grandActual)} đ</td>
+          <td class="num">${grandShare.toFixed(2)}%</td>
+          <td class="num">${formatVND(grandTarget)} đ</td>
+          <td class="num">${formatCompletionCell(grandActual, grandTarget)}</td>
+          <td class="num" style="color:var(--text-sub);">${grandLY > 0 ? formatVND(grandLY) + ' đ' : '—'}</td>
+          <td class="num">${formatSegmentYoYCell(grandActual, grandLY > 0 ? grandLY : null)}</td>
+        </tr>`;
+    }
+
+    /*************************************************************************
+     * BẢNG CHI TIẾT SỐ LƯỢNG KHÁCH MUA THEO TỆP KHÁCH HÀNG
+     *************************************************************************/
+    function renderCustomerSegmentTable() {
+      const tbody = document.getElementById("customerSegmentTableBody");
+      const tfoot = document.getElementById("customerSegmentTableFoot");
+      if (!tbody || !tfoot) return;
+
+      const monthFilter = document.getElementById("filterMonth").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const segmentFilter = document.getElementById("filterSegment").value;
+
+      const allSegments = segmentFilter === "ALL" ? Object.keys(targetCustomerMatrix) : [segmentFilter.toUpperCase()];
+
+      let grandActual = 0, grandTarget = 0, grandLY = 0;
+      let htmlRows = "";
+      const segmentData = [];
+
+      allSegments.forEach(seg => {
+        const uniqueCusts = new Set(filteredTransactions.filter(t => String(t.segment).trim().toUpperCase() === seg).map(t => t.customerId)).size;
+        const targetCusts = getCustomerTargetForScope(monthFilter, seg, startDate, endDate);
+        const lyCusts = getLYDataBySegmentScope('CUSTOMER', seg, monthFilter, startDate, endDate);
+
+        grandActual += uniqueCusts;
+        grandTarget += targetCusts;
+        if (lyCusts !== null) grandLY += lyCusts;
+
+        segmentData.push({ seg, uniqueCusts, targetCusts, lyCusts });
+      });
+
+      const formatCompletionCell = (actual, target) => {
+        if (target <= 0) return `<span style="color:var(--text-sub);">—</span>`;
+        const pct = (actual / target) * 100;
+        const barW = Math.min(Math.max(pct, 0), 100);
+        const barColor = pct >= 100 ? "var(--positive)" : (pct >= 70 ? "var(--moss-green)" : "var(--metallic-gold)");
+        return `<div class="target-inline-wrap"><span style="font-weight:600; color:${pct >= 100 ? 'var(--positive)' : 'var(--text-main)'};">${pct.toFixed(1)}%</span><div class="target-mini-track"><div class="target-mini-fill" style="width:${barW}%; background-color:${barColor};"></div></div></div>`;
+      };
+
+      segmentData.forEach(data => {
+        const sharePct = grandActual > 0 ? (data.uniqueCusts / grandActual) * 100 : 0;
+        htmlRows += `
+          <tr>
+            <td style="font-weight:600;">${data.seg}</td>
+            <td class="num" style="font-weight:700;">${data.uniqueCusts.toLocaleString("vi-VN")}</td>
+            <td class="num" style="color:var(--text-sub);">${sharePct.toFixed(2)}%</td>
+            <td class="num">${data.targetCusts.toLocaleString("vi-VN")}</td>
+            <td class="num">${formatCompletionCell(data.uniqueCusts, data.targetCusts)}</td>
+            <td class="num" style="color:var(--text-sub);">${data.lyCusts !== null ? data.lyCusts.toLocaleString("vi-VN") : '—'}</td>
+            <td class="num">${formatSegmentYoYCell(data.uniqueCusts, data.lyCusts)}</td>
+          </tr>`;
+      });
+
+      tbody.innerHTML = htmlRows;
+      tfoot.innerHTML = `
+        <tr class="row-grand-total">
+          <td>TỔNG CỘNG (${allSegments.length} TỆP KH)</td>
+          <td class="num">${grandActual.toLocaleString("vi-VN")}</td>
+          <td class="num">${(grandActual > 0 ? 100 : 0).toFixed(2)}%</td>
+          <td class="num">${grandTarget.toLocaleString("vi-VN")}</td>
+          <td class="num">${formatCompletionCell(grandActual, grandTarget)}</td>
+          <td class="num" style="color:var(--text-sub);">${grandLY > 0 ? grandLY.toLocaleString("vi-VN") : '—'}</td>
+          <td class="num">${formatSegmentYoYCell(grandActual, grandLY > 0 ? grandLY : null)}</td>
+        </tr>`;
+    }
+    /*************************************************************************
+     * BIỂU ĐỒ PHÂN TÍCH SỐ LƯỢNG KHÁCH HÀNG (UNIQUE) THEO TỆP KH
+     *************************************************************************/
+    let customerSegmentChartInstance = null;
+
+    function getCustomerTargetForScope(monthFilter, segmentFilter, startDateStr, endDateStr) {
+      let activeMonths = [1,2,3,4,5,6,7,8,9,10,11,12];
+      if (monthFilter !== "ALL") {
+        activeMonths = [parseInt(monthFilter, 10)];
+      } else if (startDateStr && endDateStr) {
+        const mStart = parseInt(startDateStr.slice(5, 7), 10) || 1;
+        const mEnd = parseInt(endDateStr.slice(5, 7), 10) || 12;
+        activeMonths = activeMonths.filter(m => m >= mStart && m <= mEnd);
+      }
+      let totalTarget = 0;
+      const segs = segmentFilter === "ALL" ? Object.keys(targetCustomerMatrix) : [segmentFilter.toUpperCase()];
+      
+      segs.forEach(seg => {
+        const monthlyArr = targetCustomerMatrix[seg];
+        if (!monthlyArr) return;
+        activeMonths.forEach(m => {
+          totalTarget += (monthlyArr[m - 1] || 0);
+        });
+      });
+      return totalTarget;
+    }
+
+    function renderCustomerSegmentChart() {
+      const ctx = document.getElementById("customerSegmentChart").getContext("2d");
+      if (customerSegmentChartInstance) {
+        customerSegmentChartInstance.destroy();
+      }
+
+      const monthFilter = document.getElementById("filterMonth").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const segmentFilter = document.getElementById("filterSegment").value;
+
+      const allSegments = Object.keys(targetCustomerMatrix);
+      let labels = segmentFilter === "ALL" ? allSegments : [segmentFilter.toUpperCase()];
+
+      let actualData = [];
+      let targetData = [];
+
+      labels.forEach(seg => {
+        // Lọc các giao dịch thuộc tệp KH tương ứng, gom Map lấy Số lượng KH duy nhất
+        const uniqueCusts = new Set(
+          filteredTransactions
+            .filter(t => String(t.segment).trim().toUpperCase() === seg)
+            .map(t => t.customerId)
+        ).size;
+        actualData.push(uniqueCusts);
+
+        const tgt = getCustomerTargetForScope(monthFilter, seg, startDate, endDate);
+        targetData.push(tgt);
+      });
+
+      customerSegmentChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "Khách hàng thực tế",
+              data: actualData,
+              backgroundColor: "#2F2F2F", // Graphite
+              borderRadius: 6,
+              barPercentage: 0.65,
+              categoryPercentage: 0.72
+            },
+            {
+              label: "Target khách hàng",
+              data: targetData,
+              backgroundColor: "#C6A75E", // Metallic Gold
+              borderRadius: 6,
+              barPercentage: 0.65,
+              categoryPercentage: 0.72
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: {
+              position: "top",
+              align: "end",
+              labels: { usePointStyle: true, pointStyle: "circle", color: "#2F2F2F", font: { size: 12, weight: "600" } }
+            },
+            tooltip: {
+              backgroundColor: "#FFFFFF", titleColor: "#2F2F2F", bodyColor: "#2F2F2F", borderColor: "#E2E8F0", borderWidth: 1, padding: 12,
+              callbacks: {
+                label: function(context) { 
+                  return ` ${context.dataset.label}: ${context.parsed.y.toLocaleString("vi-VN")} khách`; 
+                }
+              }
+            }
+          },
+          scales: {
+            x: { 
+              grid: { display: false }, 
+              ticks: { color: "#64748B", font: { size: 12, weight: "600" } } 
+            },
+            y: { 
+              beginAtZero: true, 
+              grid: { color: "#F1F5F9" }, 
+              ticks: { color: "#64748B", font: { size: 12 }, stepSize: 1 } 
+            }
+          }
+        }
+      });
+      
+      // Đồng bộ resize
+      if (document.getElementById("tabSalesView").classList.contains("active")) {
+          customerSegmentChartInstance.resize();
+      }
+    }
+    /*************************************************************************
+     * BẢNG CHI TIẾT SỐ LƯỢNG KHÁCH MUA THEO TỆP KHÁCH HÀNG
+     *************************************************************************/
+    function renderCustomerSegmentTable() {
+      const tbody = document.getElementById("customerSegmentTableBody");
+      const tfoot = document.getElementById("customerSegmentTableFoot");
+      if (!tbody || !tfoot) return;
+
+      const monthFilter = document.getElementById("filterMonth").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const segmentFilter = document.getElementById("filterSegment").value;
+
+      // Lấy danh sách Tệp KH từ Target Matrix
+      const allSegments = segmentFilter === "ALL" 
+        ? Object.keys(targetCustomerMatrix) 
+        : [segmentFilter.toUpperCase()];
+
+      let grandActual = 0;
+      let grandTarget = 0;
+      let htmlRows = "";
+      const segmentData = [];
+
+      // 1. Thu thập dữ liệu thực tế và mục tiêu của từng tệp
+      allSegments.forEach(seg => {
+        // Đếm số khách hàng (Unique) theo tệp
+        const uniqueCusts = new Set(
+          filteredTransactions
+            .filter(t => String(t.segment).trim().toUpperCase() === seg)
+            .map(t => t.customerId)
+        ).size;
+        
+        const targetCusts = getCustomerTargetForScope(monthFilter, seg, startDate, endDate);
+
+        grandActual += uniqueCusts;
+        grandTarget += targetCusts;
+
+        segmentData.push({ seg, uniqueCusts, targetCusts });
+      });
+
+      // Hàm tái sử dụng UI thanh Progress (Apple Style)
+      const formatCompletionCell = (actual, target) => {
+        if (target <= 0) return `<span style="color:var(--text-sub);">—</span>`;
+        const pct = (actual / target) * 100;
+        const barW = Math.min(Math.max(pct, 0), 100);
+        const barColor = pct >= 100 ? "var(--positive)" : (pct >= 70 ? "var(--moss-green)" : "var(--metallic-gold)");
+        const textColor = pct >= 100 ? "var(--positive)" : "var(--text-main)";
+        return `
+          <div class="target-inline-wrap">
+            <span style="font-weight:600; color:${textColor};">${pct.toFixed(1)}%</span>
+            <div class="target-mini-track">
+              <div class="target-mini-fill" style="width:${barW}%; background-color:${barColor};"></div>
+            </div>
+          </div>
+        `;
+      };
+
+      // 2. Render từng dòng Tệp Khách Hàng
+      segmentData.forEach(data => {
+        const sharePct = grandActual > 0 ? (data.uniqueCusts / grandActual) * 100 : 0;
+
+        htmlRows += `
+          <tr>
+            <td style="font-weight:600;">${data.seg}</td>
+            <td class="num" style="font-weight:700;">${data.uniqueCusts.toLocaleString("vi-VN")}</td>
+            <td class="num" style="color:var(--text-sub);">${sharePct.toFixed(2)}%</td>
+            <td class="num">${data.targetCusts.toLocaleString("vi-VN")}</td>
+            <td class="num">${formatCompletionCell(data.uniqueCusts, data.targetCusts)}</td>
+            <td class="num" style="color:var(--text-sub);">—</td>
+            <td class="num"><span class="badge-trend neutral">Chưa có dữ liệu</span></td>
+          </tr>
+        `;
+      });
+
+      tbody.innerHTML = htmlRows;
+
+      // 3. Render dòng TỔNG CỘNG
+      const grandShare = grandActual > 0 ? 100.00 : 0.00; // Tổng luôn là 100%
+      tfoot.innerHTML = `
+        <tr class="row-grand-total">
+          <td>TỔNG CỘNG (${allSegments.length} TỆP KH)</td>
+          <td class="num">${grandActual.toLocaleString("vi-VN")}</td>
+          <td class="num">${grandShare.toFixed(2)}%</td>
+          <td class="num">${grandTarget.toLocaleString("vi-VN")}</td>
+          <td class="num">${formatCompletionCell(grandActual, grandTarget)}</td>
+          <td class="num" style="color:var(--text-sub);">—</td>
+          <td class="num"><span class="badge-trend neutral">Chưa có dữ liệu</span></td>
+        </tr>
+      `;
+    }
+    /*************************************************************************
+     * 8. BẢNG TOP 10 KHÁCH HÀNG, TOP 10 SẢN PHẨM & NGÀNH HÀNG TĂNG TRƯỞNG
+     *************************************************************************/
+    function getRankBadge(idx) {
+      const r = idx + 1;
+      let cls = "";
+      if (r === 1) cls = "rank-1";
+      else if (r === 2) cls = "rank-2";
+      else if (r === 3) cls = "rank-3";
+      return `<span class="rank-badge ${cls}">${r}</span>`;
+    }
+
+    function toggleTableRows(type) {
+      tableLimits[type] = tableLimits[type] === 5 ? 10 : 5;
+      if (type === "customers") renderTopCustomersTable();
+      if (type === "products") renderTopProductsTable();
+      if (type === "growth") renderGrowthTable(document.getElementById("filterMonth").value);
+    }
+
+    function renderTopCustomersTable() {
+      const tbody = document.getElementById("topCustomersBody");
+      const totalRev = filteredTransactions.reduce((s, t) => s + t.netRevenue, 0);
+
+      const custMap = {};
+      filteredTransactions.forEach(t => {
+        if (!custMap[t.customerId]) {
+          custMap[t.customerId] = { id: t.customerId, segment: t.segment, rev: 0 };
+        }
+        custMap[t.customerId].rev += t.netRevenue;
+      });
+
+      const sorted = Object.values(custMap)
+        .sort((a, b) => b.rev - a.rev)
+        .slice(0, tableLimits.customers);
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-sub);">Chưa có dữ liệu</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = sorted.map((c, idx) => {
+        const share = totalRev > 0 ? (c.rev / totalRev) * 100 : 0;
+        return `
+          <tr>
+            <td>${getRankBadge(idx)}</td>
+            <td>
+              <div style="font-weight:600;">KH: ${c.id}</div>
+              <div style="font-size:11.5px;color:var(--text-sub);">${c.segment}</div>
+            </td>
+            <td class="num" style="font-weight:700;">${(c.rev / 1e6).toFixed(2)} tr</td>
+            <td class="num" style="color:var(--text-sub);">${share.toFixed(1)}%</td>
+          </tr>
+        `;
+      }).join("");
+
+      document.getElementById("btnToggleCustomers").textContent =
+        tableLimits.customers === 5 ? "Xem thêm (Top 10) ›" : "Thu gọn (Top 5) ‹";
+    }
+
+    function renderTopProductsTable() {
+      const tbody = document.getElementById("topProductsBody");
+      const prodMap = {};
+
+      filteredTransactions.forEach(t => {
+        if (!prodMap[t.sku]) {
+          prodMap[t.sku] = { sku: t.sku, name: t.productName, rev: 0, qty: 0 };
+        }
+        prodMap[t.sku].rev += t.netRevenue;
+        prodMap[t.sku].qty += t.qty;
+      });
+
+      const sorted = Object.values(prodMap)
+        .sort((a, b) => b.rev - a.rev)
+        .slice(0, tableLimits.products);
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-sub);">Chưa có dữ liệu</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = sorted.map((p, idx) => `
+        <tr>
+          <td>${getRankBadge(idx)}</td>
+          <td style="color:var(--text-sub);font-size:12px;">${p.sku}</td>
+          <td style="font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${p.name}">${p.name}</td>
+          <td class="num" style="font-weight:700;">${(p.rev / 1e6).toFixed(2)} tr</td>
+          <td class="num">${p.qty.toLocaleString("vi-VN")}</td>
+        </tr>
+      `).join("");
+
+      document.getElementById("btnToggleProducts").textContent =
+        tableLimits.products === 5 ? "Xem thêm (Top 10) ›" : "Thu gọn (Top 5) ‹";
+    }
+
+    function renderGrowthTable(monthFilter) {
+      const tbody = document.getElementById("topGrowthBody");
+      const subtitleEl = document.getElementById("growthTableSubtitle");
+      const colHeaderEl = document.getElementById("growthColHeader");
+
+      // Kiểm tra xem có ít nhất 2 tháng dữ liệu để tính Tăng trưởng MoM hợp lệ không
+      const monthsAvailable = Array.from(new Set(allTransactions.map(t => t.month))).sort((a, b) => a - b);
+
+      let compareMode = "TARGET_PCT"; // Mặc định so với Target nếu chỉ có 1 tháng và chưa có Năm ngoái
+      let curMonth = null;
+      let prevMonth = null;
+
+      if (monthFilter !== "ALL" && parseInt(monthFilter, 10) > 1) {
+        curMonth = parseInt(monthFilter, 10);
+        prevMonth = curMonth - 1;
+        if (monthsAvailable.includes(prevMonth)) {
+          compareMode = "MOM";
+        }
+      } else if (monthsAvailable.length >= 2) {
+        curMonth = monthsAvailable[monthsAvailable.length - 1];
+        prevMonth = monthsAvailable[monthsAvailable.length - 2];
+        compareMode = "MOM";
+      }
+
+      if (compareMode === "MOM") {
+        subtitleEl.textContent = `So sánh Tháng ${curMonth} vs Tháng ${prevMonth} (Triệu đồng)`;
+        colHeaderEl.textContent = `Tăng trưởng (T${curMonth}/T${prevMonth})`;
+
+        const catCur = {};
+        const catPrev = {};
+        allTransactions.forEach(t => {
+          if (t.month === curMonth) catCur[t.category] = (catCur[t.category] || 0) + t.netRevenue;
+          if (t.month === prevMonth) catPrev[t.category] = (catPrev[t.category] || 0) + t.netRevenue;
+        });
+
+        const validRows = Object.keys(catCur)
+          .filter(cat => catPrev[cat] > 0)
+          .map(cat => {
+            const curVal = catCur[cat];
+            const prevVal = catPrev[cat];
+            const growth = ((curVal - prevVal) / prevVal) * 100;
+            return { cat, rev: curVal, metric: growth };
+          })
+          .sort((a, b) => b.metric - a.metric)
+          .slice(0, tableLimits.growth);
+
+        if (validRows.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-sub);">Chưa có dữ liệu so sánh hợp lệ</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = validRows.map((r, idx) => {
+          const isUp = r.metric >= 0;
+          const sign = isUp ? "+" : "";
+          return `
+            <tr>
+              <td>${getRankBadge(idx)}</td>
+              <td style="font-weight:600;">${r.cat}</td>
+              <td class="num" style="font-weight:700;">${(r.rev / 1e6).toFixed(2)} tr</td>
+              <td class="num">
+                <span class="badge-trend ${isUp ? 'up' : 'down'}">${isUp ? '↗' : '↘'} ${sign}${r.metric.toFixed(1)}%</span>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      } else {
+        // Khi Sheet Năm ngoái trống và chỉ có 1 tháng hiện tại -> Hiển thị % Hoàn thành Target ngành hàng
+        subtitleEl.textContent = `Sheet Năm ngoái trống — Hiển thị % Hoàn thành Target kỳ lọc`;
+        colHeaderEl.textContent = `% Đạt Target`;
+
+        const catRev = {};
+        filteredTransactions.forEach(t => {
+          catRev[t.category] = (catRev[t.category] || 0) + t.netRevenue;
+        });
+
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+
+        const rows = Object.keys(catRev)
+          .map(cat => {
+            const rev = catRev[cat];
+            const tgt = getTargetForScope(monthFilter, cat, startDate, endDate);
+            const pct = tgt > 0 ? (rev / tgt) * 100 : null;
+            return { cat, rev, pct };
+          })
+          .filter(r => r.pct !== null)
+          .sort((a, b) => b.pct - a.pct)
+          .slice(0, tableLimits.growth);
+
+        tbody.innerHTML = rows.map((r, idx) => `
+          <tr>
+            <td>${getRankBadge(idx)}</td>
+            <td style="font-weight:600;">${r.cat}</td>
+            <td class="num" style="font-weight:700;">${(r.rev / 1e6).toFixed(2)} tr</td>
+            <td class="num">
+              <span class="badge-trend ${r.pct >= 100 ? 'up' : 'neutral'}">${r.pct.toFixed(2)}% Target</span>
+            </td>
+          </tr>
+        `).join("");
+      }
+
+     document.getElementById("btnToggleGrowth").textContent =
+        tableLimits.growth === 5 ? "Xem thêm (Top 10) ›" : "Thu gọn (Top 5) ‹";
+    }
+
+    /*************************************************************************
+     * 8B. BẢNG CHI TIẾT DOANH THU THEO BỘ PHẬN & 31 NGÀNH HÀNG
+     *************************************************************************/
+    function getTargetByCategoryKeyCaseInsensitive(catKeyUpper, monthFilter, startDateStr, endDateStr) {
+      let activeMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      if (monthFilter !== "ALL") {
+        activeMonths = [parseInt(monthFilter, 10)];
+      } else if (startDateStr && endDateStr) {
+        const mStart = parseInt(startDateStr.slice(5, 7), 10) || 1;
+        const mEnd = parseInt(endDateStr.slice(5, 7), 10) || 12;
+        activeMonths = activeMonths.filter(m => m >= mStart && m <= mEnd);
+      }
+
+      const matchedKey = Object.keys(targetMatrix).find(k => k.trim().toUpperCase() === catKeyUpper);
+      if (!matchedKey || !targetMatrix[matchedKey]) return 0;
+
+      const monthlyArr = targetMatrix[matchedKey];
+      return activeMonths.reduce((sum, m) => sum + (monthlyArr[m - 1] || 0), 0);
+    }
+
+    function getLastYearByCategoryScope(catKeyUpper, monthFilter, startDateStr, endDateStr) {
+      if (!lastYearData) return null;
+
+      // Nếu Backend đã có byCategoryMonth -> Lọc chính xác theo các tháng trong kỳ
+      if (lastYearData.byCategoryMonth) {
+        const matchedKey = Object.keys(lastYearData.byCategoryMonth).find(k => k.trim().toUpperCase() === catKeyUpper);
+        if (!matchedKey) return 0;
+
+        let activeMonths = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        if (monthFilter !== "ALL") {
+          activeMonths = [parseInt(monthFilter, 10)];
+        } else if (startDateStr && endDateStr) {
+          const mStart = parseInt(startDateStr.slice(5, 7), 10) || 1;
+          const mEnd = parseInt(endDateStr.slice(5, 7), 10) || 12;
+          activeMonths = activeMonths.filter(m => m >= mStart && m <= mEnd);
+        }
+
+        const arr = lastYearData.byCategoryMonth[matchedKey];
+        return activeMonths.reduce((sum, m) => sum + (arr[m - 1] || 0), 0);
+      }
+
+      // Fallback nếu chỉ có tổng năm ngoái theo ngành hàng
+      if (lastYearData.byCategory) {
+        const matchedKey = Object.keys(lastYearData.byCategory).find(k => k.trim().toUpperCase() === catKeyUpper);
+        return matchedKey ? (lastYearData.byCategory[matchedKey] || 0) : 0;
+      }
+
+      return null;
+    }
+
+    function setDivisionFilter(divisionName, ev) {
+      selectedDivisionFilter = divisionName;
+      document.querySelectorAll("#deptFilterPills .dept-pill-btn").forEach(btn => btn.classList.remove("active"));
+      if (ev && ev.currentTarget) {
+        ev.currentTarget.classList.add("active");
+      }
+      renderDepartmentCategoryTable();
+    }
+
+    function renderDepartmentCategoryTable() {
+      const tbody = document.getElementById("deptCategoryTableBody");
+      const tfoot = document.getElementById("deptCategoryTableFoot");
+      if (!tbody || !tfoot) return;
+
+      const monthFilter = document.getElementById("filterMonth").value;
+      const startDate = document.getElementById("startDate").value;
+      const endDate = document.getElementById("endDate").value;
+      const showSubtotals = document.getElementById("toggleDeptSubtotal")
+        ? document.getElementById("toggleDeptSubtotal").checked
+        : true;
+
+      // 1. Cộng dồn Doanh thu thực tế theo Ngành hàng (chuẩn hóa chữ hoa để không lệch "Bedding" vs "BEDDING")
+      const actualByCatUpper = {};
+      let totalAllActual = 0;
+
+      filteredTransactions.forEach(t => {
+        const keyUpper = String(t.category || "KHÁC").trim().toUpperCase();
+        actualByCatUpper[keyUpper] = (actualByCatUpper[keyUpper] || 0) + t.netRevenue;
+        totalAllActual += t.netRevenue;
+      });
+
+      // 2. Lọc danh sách ngành hàng theo Bộ phận đang chọn
+      const activeSchema = DIVISION_CATEGORY_SCHEMA.filter(item =>
+        selectedDivisionFilter === "ALL" || item.division === selectedDivisionFilter
+      );
+
+      // Tính tổng của phạm vi bảng đang hiển thị
+      let grandActual = 0;
+      let grandTarget = 0;
+      let grandLY = 0;
+      let hasAnyLY = Boolean(lastYearData);
+
+      const enrichedRows = activeSchema.map(item => {
+        const actual = actualByCatUpper[item.key] || 0;
+        const target = getTargetByCategoryKeyCaseInsensitive(item.key, monthFilter, startDate, endDate);
+        const lyVal = getLastYearByCategoryScope(item.key, monthFilter, startDate, endDate);
+
+        grandActual += actual;
+        grandTarget += target;
+        if (lyVal !== null) grandLY += lyVal;
+
+        return {
+          division: item.division,
+          label: item.label,
+          key: item.key,
+          actual,
+          target,
+          ly: lyVal
+        };
+      });
+
+      const shareDenominator = totalAllActual > 0 ? totalAllActual : grandActual;
+
+      // Hàm định dạng ô Tỷ lệ hoàn thành mục tiêu (%)
+      const formatCompletionCell = (actual, target) => {
+        if (target <= 0) return `<span style="color:var(--text-sub);">—</span>`;
+        const pct = (actual / target) * 100;
+        const barW = Math.min(Math.max(pct, 0), 100);
+        const barColor = pct >= 100 ? "var(--positive)" : (pct >= 70 ? "var(--moss-green)" : "var(--metallic-gold)");
+        const textColor = pct >= 100 ? "var(--positive)" : "var(--text-main)";
+        return `
+          <div class="target-inline-wrap">
+            <span style="font-weight:600; color:${textColor};">${pct.toFixed(1)}%</span>
+            <div class="target-mini-track">
+              <div class="target-mini-fill" style="width:${barW}%; background-color:${barColor};"></div>
+            </div>
+          </div>
+        `;
+      };
+
+      // Hàm định dạng ô Tăng trưởng YoY (%)
+      const formatYoYCell = (actual, lyVal) => {
+        if (!hasAnyLY || lyVal === null || lyVal <= 0) {
+          return `<span class="badge-trend neutral">Chưa có dữ liệu</span>`;
+        }
+        const yoy = ((actual - lyVal) / lyVal) * 100;
+        const isUp = yoy >= 0;
+        return `<span class="badge-trend ${isUp ? 'up' : 'down'}">${isUp ? '↗ +' : '↘ '}${yoy.toFixed(1)}%</span>`;
+      };
+
+      // 3. Render các dòng chi tiết (và dòng Subtotal theo từng Bộ phận nếu bật)
+      let htmlRows = "";
+      let currentDiv = null;
+      let divActual = 0, divTarget = 0, divLY = 0;
+
+      const flushDivisionSubtotal = (divName) => {
+        if (!showSubtotals || !divName) return "";
+        const divShare = shareDenominator > 0 ? (divActual / shareDenominator) * 100 : 0;
+        return `
+          <tr class="row-dept-subtotal">
+            <td colspan="2">Tổng ${divName}</td>
+            <td class="num">${formatVND(divActual)} đ</td>
+            <td class="num">${divShare.toFixed(2)}%</td>
+            <td class="num">${formatVND(divTarget)} đ</td>
+            <td class="num">${formatCompletionCell(divActual, divTarget)}</td>
+            <td class="num">${hasAnyLY ? formatVND(divLY) + ' đ' : '—'}</td>
+            <td class="num">${formatYoYCell(divActual, hasAnyLY ? divLY : null)}</td>
+          </tr>
+        `;
+      };
+
+      enrichedRows.forEach((r, idx) => {
+        if (currentDiv !== null && r.division !== currentDiv) {
+          htmlRows += flushDivisionSubtotal(currentDiv);
+          divActual = 0;
+          divTarget = 0;
+          divLY = 0;
+        }
+        currentDiv = r.division;
+        divActual += r.actual;
+        divTarget += r.target;
+        if (r.ly !== null) divLY += r.ly;
+
+        const sharePct = shareDenominator > 0 ? (r.actual / shareDenominator) * 100 : 0;
+
+        htmlRows += `
+          <tr>
+            <td><span class="dept-badge">${r.division}</span></td>
+            <td style="font-weight:600;">${r.label}</td>
+            <td class="num" style="font-weight:700;">${formatVND(r.actual)} đ</td>
+            <td class="num" style="color:var(--text-sub);">${sharePct.toFixed(2)}%</td>
+            <td class="num">${formatVND(r.target)} đ</td>
+            <td class="num">${formatCompletionCell(r.actual, r.target)}</td>
+            <td class="num" style="color:var(--text-sub);">${hasAnyLY && r.ly !== null ? formatVND(r.ly) + ' đ' : '—'}</td>
+            <td class="num">${formatYoYCell(r.actual, r.ly)}</td>
+          </tr>
+        `;
+
+        if (idx === enrichedRows.length - 1) {
+          htmlRows += flushDivisionSubtotal(currentDiv);
+        }
+      });
+
+      tbody.innerHTML = htmlRows;
+
+      // 4. Render dòng TỔNG CỘNG ở phần Footer của bảng
+      const grandShare = shareDenominator > 0 ? (grandActual / shareDenominator) * 100 : 0;
+      tfoot.innerHTML = `
+        <tr class="row-grand-total">
+          <td colspan="2">TỔNG CỘNG (${enrichedRows.length} NGÀNH HÀNG)</td>
+          <td class="num">${formatVND(grandActual)} đ</td>
+          <td class="num">${grandShare.toFixed(2)}%</td>
+          <td class="num">${formatVND(grandTarget)} đ</td>
+          <td class="num">${formatCompletionCell(grandActual, grandTarget)}</td>
+          <td class="num">${hasAnyLY ? formatVND(grandLY) + ' đ' : '—'}</td>
+          <td class="num">${formatYoYCell(grandActual, hasAnyLY ? grandLY : null)}</td>
+        </tr>
+      `;
+    }
+
+    /*************************************************************************
+     * 9. NẠP FILE EXCEL (.XLSX / .CSV) HOẶC ĐỒNG BỘ TRỰC TIẾP GOOGLE SHEETS
+     *************************************************************************/
+    function handleExcelUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+
+          // 1. Đọc Sheet "Doanh thu"
+          const revSheetName = workbook.SheetNames.find(n => n.toLowerCase().includes("doanh thu") && !n.toLowerCase().includes("năm ngoái")) || workbook.SheetNames[0];
+          const revSheet = workbook.Sheets[revSheetName];
+          const rawRevRows = XLSX.utils.sheet_to_json(revSheet, { header: 1, raw: false });
+
+          allTransactions = parseRawRowsToObjects(rawRevRows.slice(1));
+
+         // 2. Đọc Sheet "Target" nếu có (Tách bảng Target Doanh thu, TARGET PROFIT & TARGET KHÁCH MUA HÀNG)
+          const tgtSheetName = workbook.SheetNames.find(n => n.toLowerCase().includes("target"));
+          if (tgtSheetName) {
+            const tgtRows = XLSX.utils.sheet_to_json(workbook.Sheets[tgtSheetName], { header: 1, raw: false });
+            const newTarget = {};
+            const newProfitTarget = {};
+            const newCustomerTarget = {};
+            let currentSection = 'REVENUE'; // Mặc định khối đầu tiên là Doanh thu
+
+            for (let i = 1; i < tgtRows.length; i++) {
+              const row = tgtRows[i];
+              if (!row || !row[0]) continue;
+              const rawName = String(row[0]).trim();
+              const lowerName = rawName.toLowerCase();
+
+              // Chuyển đổi trạng thái quét khối dữ liệu Target
+              if (lowerName.includes("target profit")) {
+                currentSection = 'PROFIT';
+                continue;
+              }
+              if (lowerName.includes("target khách mua hàng") || lowerName.includes("target khách hàng")) {
+                currentSection = 'CUSTOMER';
+                continue;
+              }
+              if (lowerName === "total" || lowerName === "ngành hàng" || lowerName === "tệp khách hàng") continue;
+
+              const months = [];
+              for (let m = 1; m <= 12; m++) {
+                const cleanNum = parseVNDFromSheet(row[m]);
+                months.push(cleanNum);
+              }
+              // Đẩy dữ liệu vào đúng nhóm Map
+              if (currentSection === 'REVENUE') {
+                newTarget[rawName] = months;
+              } else if (currentSection === 'PROFIT') {
+                newProfitTarget[rawName.toUpperCase()] = months;
+              } else if (currentSection === 'CUSTOMER') {
+                newCustomerTarget[rawName.toUpperCase()] = months;
+              }
+            }
+            if (Object.keys(newTarget).length > 0) targetMatrix = newTarget;
+            if (Object.keys(newProfitTarget).length > 0) targetProfitMatrix = newProfitTarget;
+            if (Object.keys(newCustomerTarget).length > 0) targetCustomerMatrix = newCustomerTarget;
+          }
+
+         populateFilterDropdowns();
+          setDefaultMonthToLatest(); // Tự động set tháng gần nhất
+          applyAllFilters();
+
+         document.getElementById("dataStatusText").innerHTML =
+            `Đã nạp file "${file.name}": <strong>${allTransactions.length.toLocaleString("vi-VN")} dòng</strong>`;
+        } catch (err) {
+          alert("Không thể đọc file Excel. Vui lòng kiểm tra định dạng file: " + err.message);
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function unpackServerPayload(payload) {
+      const d = payload.dicts;
+      return payload.compressedRows.map(r => {
+        const dateStr = r[0];
+        const posNo = r[4];
+        const billNo = r[5];
+        return {
+          date: dateStr,
+          year: parseInt(dateStr.slice(0, 4), 10),
+          month: parseInt(dateStr.slice(5, 7), 10),
+          customerId: d.customers[r[1]] || "",
+          memberCard: d.cards[r[2]] || "",
+          segment: d.segments[r[3]] || "KHÁC",
+          posNo: posNo,
+          billNo: billNo,
+          uniqueBillKey: `${dateStr}_${posNo}_${billNo}`,
+          sku: d.skus[r[6]] || "",
+          productName: d.products[r[7]] || "",
+          category: d.categories[r[8]] || "KHÁC",
+          unitPrice: r[9] || 0,
+          qty: r[10] || 0,
+          grossAmount: r[11] || 0,
+          profit: r[12] || 0,
+          netRevenue: r[13] || 0
+        };
+      });
+    }
+
+    async function syncFromGoogleSheet() {
+      const statusText = document.getElementById("dataStatusText");
+
+      // ƯU TIÊN 1: Chạy trực tiếp qua Google Apps Script Backend (Code.gs)
+      if (typeof google !== "undefined" && google.script && google.script.run) {
+        statusText.innerHTML = `<strong>Đang đồng bộ từ Google Apps Script (Code.gs)...</strong> Đang đọc toàn bộ 32.784 dòng từ Sheet "Doanh thu", "Target" & "Doanh thu năm ngoái"...`;
+
+        google.script.run
+          .withSuccessHandler(function(res) {
+            if (!res || res.status !== "SUCCESS") {
+              statusText.innerHTML = `<strong>Lỗi từ Server:</strong> ${res ? res.message : "Không nhận được phản hồi"}`;
+              return;
+            }
+            if (res.targetMatrix && Object.keys(res.targetMatrix).length > 0) {
+              targetMatrix = res.targetMatrix;
+            }
+            if (res.targetProfitMatrix && Object.keys(res.targetProfitMatrix).length > 0) {
+              targetProfitMatrix = res.targetProfitMatrix;
+            }
+            if (res.targetCustomerMatrix && Object.keys(res.targetCustomerMatrix).length > 0) {
+              targetCustomerMatrix = res.targetCustomerMatrix;
+            }
+            lastYearData = res.lastYearData || null;
+            allTransactions = unpackServerPayload(res);
+
+            populateFilterDropdowns();
+            setDefaultMonthToLatest(); // Tự động set tháng gần nhất
+            applyAllFilters();
+
+            const lyStatus = lastYearData ? "có data năm ngoái" : "năm ngoái trống";
+            statusText.innerHTML = `Đồng bộ lúc ${res.syncedAt}: <strong>${allTransactions.length.toLocaleString("vi-VN")} dòng</strong> | ${lyStatus}`;
+          })
+          .withFailureHandler(function(err) {
+            statusText.innerHTML = `<strong>Lỗi kết nối Apps Script:</strong> ${err.message || err}`;
+          })
+          .getB2BDashboardData();
+        return;
+      }
+
+      // ƯU TIÊN 2: Fallback khi mở file index.html trực tiếp trên máy tính (ngoài Apps Script)
+      statusText.innerHTML = `<strong>Đang kết nối Google Sheets...</strong> Đang tải toàn bộ 32.784 dòng từ Sheet "Doanh thu"...`;
+      try {
+        const csvUrl = "https://docs.google.com/spreadsheets/d/1qzMC_aY8hKvanTBvLizAXb2E91eqg255o9mjPFZLkok/gviz/tq?tqx=out:csv&sheet=" + encodeURIComponent("Doanh thu");
+        const res = await fetch(csvUrl);
+        if (!res.ok) throw new Error("CORS Restricted");
+        const csvText = await res.text();
+        const wb = XLSX.read(csvText, { type: "string" });
+        const firstSheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, raw: false });
+
+       const parsed = parseRawRowsToObjects(rows.slice(1));
+        if (parsed.length > 0) {
+          allTransactions = parsed;
+          populateFilterDropdowns();
+          setDefaultMonthToLatest(); // Tự động set tháng gần nhất
+          applyAllFilters();
+          statusText.innerHTML =
+            `<strong>Đồng bộ Live Google Sheets thành công:</strong> Đã tải <strong>${allTransactions.length.toLocaleString("vi-VN")} dòng giao dịch thực tế</strong>.`;
+        } else {
+          throw new Error("Empty rows");
+        }
+      } catch (e) {
+        statusText.innerHTML =
+          `<strong>Chế độ Offline (Local HTML):</strong> Để tự động tải 32.784 dòng không cần chọn file, hãy chạy trên <strong>Google Apps Script (Code.gs)</strong> hoặc nhấn nút vàng <strong>"📂 Nạp file Excel (.xlsx/.csv)"</strong> ở góc phải.`;
+      }
+    }
+
+    /*************************************************************************
+     * 10. XUẤT FILE CSV THEO DỮ LIỆU ĐANG LỌC
+     *************************************************************************/
+    function exportFilteredCSV() {
+      if (filteredTransactions.length === 0) {
+        alert("Không có dữ liệu để xuất!");
+        return;
+      }
+      const headers = [
+        "Ngày mua hàng","Mã khách hàng","Mã thẻ thành viên","Tệp khách hàng",
+        "Số pos","Số bill","Mã bán hàng","Tên sản phẩm","Ngành hàng",
+        "Giá bán (VNĐ)","Số lượng","Thành tiền (VNĐ)","Lợi nhuận (VNĐ)","Doanh thu thuần (VNĐ)"
+      ];
+      const csvRows = [headers.join(",")];
+      filteredTransactions.forEach(t => {
+        csvRows.push([
+          t.date,
+          `"${t.customerId}"`,
+          `"${t.memberCard}"`,
+          `"${t.segment}"`,
+          t.posNo,
+          t.billNo,
+          `"${t.sku}"`,
+          `"${t.productName.replace(/"/g, '""')}"`,
+          `"${t.category}"`,
+          t.unitPrice,
+          t.qty,
+          t.grossAmount,
+          t.profit,
+          t.netRevenue
+        ].join(","));
+      });
+
+      const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `BAO_CAO_DOANH_SO_B2B_FILTERED_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+/*************************************************************************
+     * 11. XỬ LÝ MENU POPOVER HỢP NHẤT (APPLE UI STYLES)
+     *************************************************************************/
+    function toggleAdvancedPanel(e) {
+      if (e) e.stopPropagation();
+      const panel = document.getElementById("advancedFilterPanel");
+      const backdrop = document.getElementById("menuBackdrop");
+      
+      panel.classList.toggle("show");
+      if (panel.classList.contains("show")) {
+        backdrop.classList.add("show");
+      } else {
+        backdrop.classList.remove("show");
+      }
+    }
+
+    function closeAllMenus() {
+      document.getElementById("advancedFilterPanel").classList.remove("show");
+      document.getElementById("menuBackdrop").classList.remove("show");
+    }
+
+    function showReportInfo() {
+      alert("LOTTE MART B2B | HỆ THỐNG BÁO CÁO DOANH SỐ 2026\n\n• Được phát triển nội bộ để theo dõi KPI B2B.\n• Nguồn dữ liệu: Google Sheets trực tiếp.\n• Xử lý & Nén dữ liệu: Thuật toán nén Dictionary từ Apps Script giúp tải mượt 32,784 dòng giao dịch.\n• UX/UI: Thiết kế theo chuẩn Apple-inspired tối giản và Data-driven.");
+    }
+
+   function switchMainTab(tabKey) {
+      const isSales = tabKey === 'SALES';
+      
+      // 1. Cập nhật trạng thái nút bấm trên thanh Menu
+      document.getElementById("tabBtnSales").classList.toggle("active", isSales);
+      document.getElementById("tabBtnChurn").classList.toggle("active", !isSales);
+
+      // 2. Ẩn/Hiện khung nội dung tương ứng
+      document.getElementById("tabSalesView").classList.toggle("active", isSales);
+      document.getElementById("tabChurnView").classList.toggle("active", !isSales);
+
+      // 3. Đổi tiêu đề chính (h1) đồng bộ với Tab đang mở
+      const titleHeading = document.querySelector(".page-title h1");
+      if (titleHeading) {
+        titleHeading.textContent = isSales ? "Báo cáo doanh số" : "Khách hàng lâu chưa mua";
+      }
+
+      // 4. Đảm bảo Chart.js co giãn chuẩn kích thước khi quay lại Tab Báo cáo doanh số
+      if (isSales && revenueChartInstance) {
+        revenueChartInstance.resize();
+      }
+    }
+/*************************************************************************
+     * TỐI ƯU HIỆU NĂNG: DEBOUNCE TÌM KIẾM
+     *************************************************************************/
+    let searchTimeout = null;
+    function debounceApplyFilters() {
+      if (searchTimeout) {
+        clearTimeout(searchTimeout);
+      }
+      searchTimeout = setTimeout(() => {
+        applyAllFilters();
+      }, 400); // Đợi 400ms sau khi ngừng gõ mới thực thi lọc dữ liệu để tránh treo trình duyệt
+    }
+    /*************************************************************************
+     * MODULE KHÁCH HÀNG LÂU CHƯA MUA (CHURN CUSTOMERS)
+     *************************************************************************/
+    let rawChurnData = [];
+    let currentChurnFilter = 'ALL'; 
+    let churnCurrentPage = 1;
+    let churnRowsPerPage = 8;
+    let mockCRMState = {}; // Giả lập bộ nhớ trạng thái CRM
+
+function calculateChurnCustomers() {
+      // Lấy ngày giao dịch mới nhất trong dữ liệu làm mốc chuẩn (hoặc ngày hiện tại nếu hợp lệ)
+      const latestTxDateStr = allTransactions.reduce((max, t) => (t.date > max ? t.date : max), "2026-01-01");
+      const filterEndStr = document.getElementById("endDate").value;
+      const baselineDateStr = (filterEndStr && filterEndStr < latestTxDateStr) ? filterEndStr : latestTxDateStr;
+      const baselineDateObj = new Date(baselineDateStr);
+
+      // Tính mốc 90 ngày trước ngày mốc (để tính DT 3 tháng)
+      const threeMonthsAgoObj = new Date(baselineDateObj);
+      threeMonthsAgoObj.setDate(threeMonthsAgoObj.getDate() - 90);
+      const threeMonthsAgoStr = threeMonthsAgoObj.toISOString().slice(0, 10);
+
+      const customerMap = {};
+
+      // 1. Gom nhóm toàn bộ Mã khách hàng từ dữ liệu Google Sheets
+      allTransactions.forEach(t => {
+        if (!t.customerId || t.date > baselineDateStr) return;
+
+        if (!customerMap[t.customerId]) {
+          customerMap[t.customerId] = {
+            id: t.customerId,
+            memberCard: t.memberCard || "",
+            segment: t.segment,
+            latestDate: t.date,
+            transactions: []
+          };
+        }
+        customerMap[t.customerId].transactions.push(t);
+        if (t.date > customerMap[t.customerId].latestDate) {
+          customerMap[t.customerId].latestDate = t.date;
+        }
+      });
+
+      rawChurnData = [];
+      let count30 = 0, count45 = 0, count60 = 0;
+
+      // 2. Tính toán các chỉ số cho từng Mã khách hàng
+      Object.values(customerMap).forEach(c => {
+        const lastDateObj = new Date(c.latestDate);
+        const diffTime = baselineDateObj.getTime() - lastDateObj.getTime();
+        c.daysDormant = Math.max(0, Math.floor(diffTime / (1000 * 3600 * 24)));
+
+        c.revLastPurchase = c.transactions
+          .filter(t => t.date === c.latestDate)
+          .reduce((sum, t) => sum + t.netRevenue, 0);
+
+        c.revLast3Months = c.transactions
+          .filter(t => t.date >= threeMonthsAgoStr && t.date <= baselineDateStr)
+          .reduce((sum, t) => sum + t.netRevenue, 0);
+
+        // Đưa toàn bộ Mã khách hàng vào danh sách để quản lý trên bảng
+        rawChurnData.push(c);
+
+        // Phân nhóm khách hàng lâu chưa mua (>= 30 ngày)
+        if (c.daysDormant >= 60) count60++;
+        else if (c.daysDormant >= 45) count45++;
+        else if (c.daysDormant >= 30) count30++;
+      });
+
+      // 3. Sắp xếp ưu tiên: Số ngày chưa mua giảm dần, nếu bằng nhau thì xếp theo Doanh thu 3 tháng giảm dần
+      rawChurnData.sort((a, b) => (b.daysDormant - a.daysDormant) || (b.revLast3Months - a.revLast3Months));
+
+      const totalDormant30Plus = count30 + count45 + count60;
+
+     // Cập nhật Stat Cards & Badge trên thanh Menu Tab 2
+      document.getElementById("statTotalChurn").textContent = rawChurnData.length;
+      document.getElementById("countAll").textContent = rawChurnData.length;
+      const navBadge = document.getElementById("navChurnBadge");
+      if (navBadge) {
+        navBadge.textContent = document.getElementById("statTotalChurn").textContent;
+      }
+      
+      
+      document.getElementById("stat30").textContent = count30;
+      document.getElementById("count30").textContent = count30;
+      
+      document.getElementById("stat45").textContent = count45;
+      document.getElementById("count45").textContent = count45;
+      
+      document.getElementById("stat60").textContent = count60;
+      document.getElementById("count60").textContent = count60;
+
+      renderChurnTable();
+    }
+
+    function setChurnFilter(filter) {
+      currentChurnFilter = filter;
+      document.querySelectorAll(".churn-filter-btn").forEach(btn => btn.classList.remove("active"));
+      event.currentTarget.classList.add("active");
+      churnCurrentPage = 1;
+      renderChurnTable();
+    }
+
+    function changeChurnRows() {
+      churnRowsPerPage = parseInt(document.getElementById("churnRowsSelect").value, 10);
+      churnCurrentPage = 1;
+      renderChurnTable();
+    }
+
+    function changeChurnPage(page) {
+      churnCurrentPage = page;
+      renderChurnTable();
+    }
+
+    function mockChangeContactState(custId) {
+      // Giả lập lưu trạng thái (Chỉ lưu tạm trên trình duyệt)
+      const states = ["Chưa liên hệ", "Đang theo dõi", "Đã liên hệ", "Đã đặt hàng"];
+      let curIdx = states.indexOf(mockCRMState[custId] || "Chưa liên hệ");
+      let nextIdx = (curIdx + 1) % states.length;
+      mockCRMState[custId] = states[nextIdx];
+      renderChurnTable();
+    }
+
+    function renderChurnTable() {
+      const searchStr = document.getElementById("churnSearchInput").value.trim().toLowerCase();
+      const tbody = document.getElementById("churnTableBody");
+
+      // 1. Lọc dữ liệu
+      let displayData = rawChurnData.filter(c => {
+        if (currentChurnFilter === '30' && (c.daysDormant < 30 || c.daysDormant >= 45)) return false;
+        if (currentChurnFilter === '45' && (c.daysDormant < 45 || c.daysDormant >= 60)) return false;
+        if (currentChurnFilter === '60' && c.daysDormant < 60) return false;
+        
+        if (searchStr && !c.id.toLowerCase().includes(searchStr)) return false;
+        return true;
+      });
+
+      // 2. Phân trang
+      const totalItems = displayData.length;
+      const totalPages = Math.ceil(totalItems / churnRowsPerPage) || 1;
+      if (churnCurrentPage > totalPages) churnCurrentPage = totalPages;
+      
+      const startIndex = (churnCurrentPage - 1) * churnRowsPerPage;
+      const endIndex = Math.min(startIndex + churnRowsPerPage, totalItems);
+      const pageData = displayData.slice(startIndex, endIndex);
+
+      // 3. Render HTML Table
+      if (pageData.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 24px; color:var(--text-sub);">Không có khách hàng nào trong nhóm này</td></tr>`;
+      } else {
+        tbody.innerHTML = pageData.map((c, idx) => {
+          let dayColor = c.daysDormant >= 60 ? "color: #DC2626; font-weight:700;" : 
+                         (c.daysDormant >= 45 ? "color: #EA580C; font-weight:600;" : "color: #CA8A04; font-weight:600;");
+          
+          let state = mockCRMState[c.id] || "Chưa liên hệ";
+          let badgeClass = state === "Chưa liên hệ" ? "red" : (state === "Đang theo dõi" ? "yellow" : "green");
+
+          return `
+            <tr>
+              <td style="color:var(--text-sub);">${startIndex + idx + 1}</td>
+              <td style="font-weight:700; color:var(--moss-green);">${c.id}</td>
+              <td style="color:var(--text-sub); font-size:12px;">${c.memberCard ? 'Thẻ: ' + c.memberCard : 'KH: ' + c.id}</td>
+              <td>${c.segment}</td>
+              <td>${c.latestDate.split("-").reverse().join("/")}</td>
+              <td style="${dayColor}">${c.daysDormant} ngày</td>
+              <td class="num">${formatShortVND(c.revLastPurchase)}</td>
+              <td class="num" style="font-weight:600;">${formatShortVND(c.revLast3Months)}</td>
+              <td>
+                <span class="badge-status ${badgeClass}" style="cursor:pointer;" onclick="mockChangeContactState('${c.id}')" title="Click để chuyển trạng thái">${state} ✎</span>
+              </td>
+              <td>
+                <button style="border:none; background:transparent; cursor:pointer; color:var(--moss-green);">📞</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+      }
+      // 4. Render Điều hướng phân trang
+      document.getElementById("churnPageInfo").textContent = `Hiển thị ${totalItems > 0 ? startIndex + 1 : 0} - ${endIndex} trong ${totalItems} khách hàng`;
+      
+      let paginationHtml = `<button onclick="changeChurnPage(1)" ${churnCurrentPage === 1 ? 'disabled' : ''}>«</button>`;
+      for (let i = 1; i <= totalPages; i++) {
+        // Rút gọn trang nếu quá dài
+        if (totalPages > 5 && i > 2 && i < totalPages - 1 && Math.abs(i - churnCurrentPage) > 1) {
+          if (i === 3 || i === totalPages - 2) paginationHtml += `<span style="padding: 0 8px;">...</span>`;
+          continue;
+        }
+        paginationHtml += `<button class="${i === churnCurrentPage ? 'active' : ''}" onclick="changeChurnPage(${i})">${i}</button>`;
+      }
+      paginationHtml += `<button onclick="changeChurnPage(${totalPages})" ${churnCurrentPage === totalPages ? 'disabled' : ''}>»</button>`;
+      document.getElementById("churnPageControls").innerHTML = paginationHtml;
+    }
+    // KHỞI CHẠY LẦN ĐẦU
+    window.addEventListener("DOMContentLoaded", () => {
+      allTransactions = parseRawRowsToObjects(INITIAL_SAMPLE_TRANSACTIONS);
+      populateFilterDropdowns();
+      applyAllFilters();
+      // Tự động thử đồng bộ Google Sheets nếu đang mở trên trình duyệt có quyền
+      syncFromGoogleSheet();
+    });
+  </script>
+</body>
+</html>
